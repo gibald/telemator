@@ -5,11 +5,10 @@
  */
 var UI = require('ui');
 var Vector2 = require('vector2');
-var Accel = require('ui/accel');
 
 var main = new UI.Card({
   title: 'Telemator',
-  body: '1 - squeezebox\n2- kodi\n3- Test',
+  body: '1 - squeezebox\n2- kodi\n3- n/a',
 });
 var squeezebox = new UI.Card({
   title: 'Squeezebox',
@@ -43,11 +42,6 @@ main.on('click', 'select', function(e) {
   main.hide();
 });
 main.on('click', 'down', function(e) {
-  testMenu.show();
-  main.hide();
-  testMenu.on('accelTap', function(e) {
-  console.log('Tapped the window');
-});
 });
 
 
@@ -74,19 +68,6 @@ squeezebox.on('longClick', 'down', function(e) {
 squeezebox.on('click', 'back', function(e) {
   main.show();
   squeezebox.hide();
-});
-
-testMenu.on('click', 'up', function(e) {
-  sendInfo("JSSSSSS");
-});
-testMenu.on('click', 'select', function(e) {
-});
-testMenu.on('click', 'down', function(e) {
-  getInfo();
-});
-testMenu.on('click', 'back', function(e) {
-  squeezebox.show();
-  testMenu.hide();
 });
 
 kodiMenu.on('click', 'up', function(e) {
