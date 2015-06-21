@@ -8,7 +8,7 @@ var Vector2 = require('vector2');
 var Accel = require('ui/accel');
 
 var main = new UI.Card({
-  title: 'Hello World',
+  title: 'Telemator',
   body: '1 - squeezebox\n2- kodi\n3- Test',
 });
 var squeezebox = new UI.Card({
@@ -96,7 +96,7 @@ kodiMenu.on('click', 'select', function(e) {
   sendKodi('{"jsonrpc": "2.0", "method": "Input.Select", "id": 1}');
 });
 kodiMenu.on('longClick', 'select', function(e) {
-  sendKodi('{"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": 0 }, "id": 1}');
+  sendKodi('{"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": 1 }, "id": 1}');
 });
 kodiMenu.on('click', 'down', function(e) {
   sendKodi('{"jsonrpc": "2.0", "method": "Input.Right", "id": 1}');
