@@ -30,7 +30,6 @@ var kodiMenu2 = new UI.Card({
   title: 'Kodi',
   body: '1: up\n2: Select\n3: down',
 });
-Accel.init();
 main.show();
 
 main.on('click', 'up', function(e) {
