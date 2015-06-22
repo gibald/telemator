@@ -42,6 +42,9 @@ main.on('click', 'select', function(e) {
 });
 main.on('click', 'down', function(e) {
 });
+main.on('click', 'back', function(e) {
+  main.hide();
+});
 
 
 squeezebox.on('click', 'up', function(e) {
