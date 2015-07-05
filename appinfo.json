@@ -1,45 +1,18 @@
 {
-  "uuid": "133215f0-cf20-4c05-997b-3c9be5a64e5b",
-  "shortName": "Telemator",
-  "longName": "Telemator",
-  "companyName": "Gibald",
-  "versionCode": 1,
-  "versionLabel": "0.1",
-  "capabilities": [
-    "configurable"
-  ],
+  "uuid": "afb25e3f-4958-4148-8e87-8534c0554781",
+  "shortName": "telemator2",
+  "longName": "telemator2",
+  "companyName": "MakeAwesomeHappen",
+  "versionLabel": "1.0",
+  "sdkVersion": "3",
+  "targetPlatforms": ["aplite", "basalt"],
   "watchapp": {
     "watchface": false
   },
-  "appKeys": {},
-  "resources": {
-    "media": [
-      {
-        "menuIcon": true,
-        "type": "png",
-        "name": "IMAGE_MENU_ICON",
-        "file": "images/menu_icon.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_LOGO_SPLASH",
-        "file": "images/logo_splash.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_TILE_SPLASH",
-        "file": "images/tile_splash.png"
-      },
-      {
-        "type": "font",
-        "name": "MONO_FONT_14",
-        "file": "fonts/UbuntuMono-Regular.ttf"
-      }
-    ]
+  "appKeys": {
+    "dummy": 0
   },
-  "targetPlatforms": [
-    "aplite",
-    "basalt"
-  ],
-  "sdkVersion": "3"
+  "resources": {
+    "media": []
+  }
 }
