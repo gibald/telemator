@@ -6,13 +6,41 @@
 var UI = require('ui');
 var Vector2 = require('vector2');
 
-var main = new UI.Card({
-  title: 'Telemator',
-  body: '1 - squeezebox\n2- kodi\n3- n/a',
+var main = new UI.Menu({
+  backgroundColor: 'red',
+  textColor: 'white',
+  highlightBackgroundColor: 'yellow',
+  highlightTextColor: 'black',
+  sections: [{
+    title: 'Telemator',
+    items: [{
+      title: 'Squeezebox',
+      subtitle: 'Some subtitle',
+      icon: 'images/squeezebox.png'
+    }, {
+      title: 'Kodi'
+    }, {
+      title: 'n/a'
+    }, {
+      title: 'n/a'
+    }]
+  }]
 });
-var squeezebox = new UI.Card({
-  title: 'Squeezebox',
-  body: '1 - Play\n2- Pause\n3- stop',
+var squeezebox = new UI.Menu({
+  backgroundColor: 'red',
+  textColor: 'white',
+  highlightBackgroundColor: 'yellow',
+  highlightTextColor: 'black',
+  sections: [{
+    title: 'Squeezebox',
+    items: [{
+      title: 'Play',
+    }, {
+      title: 'Pause'
+    }, {
+      title: 'stop'
+    }]
+  }]
 });
 var squeezeboxAlarm = new UI.Card({
   title: 'Squeezebox Alarm',
@@ -22,54 +50,119 @@ var testMenu = new UI.Card({
   title: 'n/a',
   body: 'n/a',
 });
-var kodiMenu = new UI.Card({
-  title: 'Kodi',
-  body: '1: left\n2: Select\n3: right',
+var kodiMenu = new UI.Menu({
+  backgroundColor: 'red',
+  textColor: 'white',
+  highlightBackgroundColor: 'yellow',
+  highlightTextColor: 'black',
+  sections: [{
+    title: 'Kodi',
+    items: [{
+      title: 'left',
+    }, {
+      title: 'Select'
+    }, {
+      title: 'right'
+    }]
+  }]
 });
-var kodiMenu2 = new UI.Card({
-  title: 'Kodi',
-  body: '1: up\n2: Select\n3: down',
+var kodiMenu2 = new UI.Menu({
+  backgroundColor: 'red',
+  textColor: 'white',
+  highlightBackgroundColor: 'yellow',
+  highlightTextColor: 'black',
+  sections: [{
+    title: 'Kodi',
+    items: [{
+      title: 'up',
+    }, {
+      title: 'Select'
+    }, {
+      title: 'down'
+    }]
+  }]
 });
 main.show();
 
-main.on('click', 'up', function(e) {
-  squeezebox.show();
-  main.hide();
-});
-main.on('click', 'select', function(e) {
-  kodiMenu.show();
-  main.hide();
-});
-main.on('click', 'down', function(e) {
-});
-main.on('click', 'back', function(e) {
-  main.hide();
+main.on('select', function(e) {
+  console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
+  console.log('The item is titled "' + e.item.title + '"');
+  switch (e.item.title) {
+    case "Squeezebox":
+      squeezebox.show();
+      main.hide();
+      break;
+    case "Kodi":
+      kodiMenu.show();
+      main.hide();
+      break;
+    default:
+      //Statements executed when none of the values match the value of the expression
+      break;
+  }
 });
 
-
-squeezebox.on('click', 'up', function(e) {
-  squeebox("play");
+// squeezebox.on('click', 'up', function(e) {
+//   squeebox("play");
+// });
+// squeezebox.on('longClick', 'up', function(e) {
+//   squeebox("playlist&p1=jump&p2=%2b1");
+// });
+// squeezebox.on('click', 'select', function(e) {
+//  squeebox("pause");
+// });
+// squeezebox.on('longClick', 'select', function(e) {
+//   squeezeboxAlarm.show();
+//   squeezebox.hide();
+//   getSBInfo()
+// });
+// squeezebox.on('click', 'down', function(e) {
+//   squeebox("stop");
+// });
+// squeezebox.on('longClick', 'down', function(e) {
+//   squeebox("shutdown");
+// });
+// squeezebox.on('click', 'back', function(e) {
+//   main.show();
+//   squeezebox.hide();
+// });
+squeezebox.on('select', function(e) {
+  console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
+  console.log('The item is titled "' + e.item.title + '"');
+  switch (e.item.title) {
+    case "Play":
+      squeebox("play");
+      break;
+    case "Pause":
+      squeebox("pause");
+      break;
+    case "Stop":
+      squeebox("stop")
+      break;
+    default:
+      //Statements executed when none of the values match the value of the expression
+      break;
+  }
 });
-squeezebox.on('longClick', 'up', function(e) {
-  squeebox("playlist&p1=jump&p2=%2b1");
-});
-squeezebox.on('click', 'select', function(e) {
- squeebox("pause");
-});
-squeezebox.on('longClick', 'select', function(e) {
-  squeezeboxAlarm.show();
-  squeezebox.hide();
-  getSBInfo()
-});
-squeezebox.on('click', 'down', function(e) {
-  squeebox("stop");
-});
-squeezebox.on('longClick', 'down', function(e) {
-  squeebox("shutdown");
-});
-squeezebox.on('click', 'back', function(e) {
-  main.show();
-  squeezebox.hide();
+squeezebox.on('longSelect', function(e) {
+  console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
+  console.log('The item is titled "' + e.item.title + '"');
+  switch (e.item.title) {
+    case "Play":
+       squeebox("playlist&p1=jump&p2=%2b1");
+      break;
+    case "Pause":
+      squeezeboxAlarm.show();
+      squeezebox.hide();
+      getSBInfo();
+      break;
+    case "Stop":
+      squeebox("shutdown");
+      break;
+    default:
+      //Statements executed when none of the values match the value of the expression
+      break;
+  }
 });
 
 kodiMenu.on('click', 'up', function(e) {
