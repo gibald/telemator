@@ -49,14 +49,6 @@ function locationError(err) {
   console.log('Error requesting location!');
 }
 
-function getWeather() {
-  navigator.geolocation.getCurrentPosition(
-    locationSuccess,
-    locationError,
-    {timeout: 15000, maximumAge: 60000}
-  );
-}
-
 function getSBInfo(){
   
   var ajax = require('ajax');
@@ -73,9 +65,6 @@ function getSBInfo(){
 Pebble.addEventListener('ready', 
   function(e) {
     console.log('PebbleKit JS ready!');
-
-    // Get the initial weather
-    getWeather();
   }
 );
 
@@ -88,12 +77,12 @@ Pebble.addEventListener('appmessage',
 		{
 		  console.log("Button SELECT");
 
-		  var myurl="http://192.168.1.40:9002/status.html?p0=play&player=00%3A04%3A20%3A26%3A27%3A45";
+		  var myurl="http://192.168.1.400:9002/status.html?p0=play&player=00%3A04%3A20%3A26%3A27%3A45";
 		  xhrRequest(myurl, 'GET', function(responseText) {console.log("senddd");})
 		}
 		if (e.payload["KEY_EXCHANGEDATA"] == 2) 
 		{
-		  var myurl="http://192.168.1.40:9002/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
+		  var myurl="http://192.168.1.400:9002/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
 		  xhrRequest(myurl, 'GET', function(responseText) {console.log("senddd");})
 		}
 		if (e.payload["exchangeData"] == 3) 

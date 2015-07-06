@@ -5,14 +5,12 @@
   "companyName": "MakeAwesomeHappen",
   "versionLabel": "1.0",
   "sdkVersion": "3",
-  "targetPlatforms": ["aplite", "basalt"],
+  "targetPlatforms": ["basalt"],
   "watchapp": {
     "watchface": false
   },
   "appKeys": {
-    "KEY_EXCHANGEDATA": 0,
-    "KEY_TEMPERATURE": 0,
-    "KEY_CONDITIONS": 1,
+    "STATUS_KEY": 0,
     "MESSAGE_KEY": 1
   },
   "resources": {
@@ -22,6 +20,11 @@
         "name":"FONT_PERFECT_DOS_20",
         "file":"perfect-dos-vga.ttf",
         "compatibility": "2.7"
+      },
+      {
+        "type": "png",
+        "name": "ICON_PLAY",
+        "file": "play-icon.png"
       }
     ]
   },
