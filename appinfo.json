@@ -10,9 +10,19 @@
     "watchface": false
   },
   "appKeys": {
-    "dummy": 0
+    "KEY_TEMPERATURE": 0,
+    "KEY_CONDITIONS": 1
   },
   "resources": {
-    "media": []
-  }
+    "media": [
+      {
+        "type":"font",
+        "name":"FONT_PERFECT_DOS_20",
+        "file":"perfect-dos-vga.ttf",
+        "compatibility": "2.7"
+      }
+    ]
+  },
+  "capabilities": 
+  [ "location" ]
 }
