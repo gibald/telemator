@@ -57,6 +57,18 @@ function getWeather() {
   );
 }
 
+function getSBInfo(){
+  
+  var ajax = require('ajax');
+  ajax({ url: 'http://192.168.1.46:8080/test.json', type: 'json' },
+    function(data){
+      console.log(":::::::2"+data.squeeze.hours);
+      squeezeboxAlarm.body("Hours:"+data.squeeze.hours+"\nDays:"+data.squeeze.days);
+    }
+  );
+
+}
+
 // Listen for when the watchface is opened
 Pebble.addEventListener('ready', 
   function(e) {
@@ -69,8 +81,27 @@ Pebble.addEventListener('ready',
 
 // Listen for when an AppMessage is received
 Pebble.addEventListener('appmessage',
-  function(e) {
-    console.log('AppMessage received!');
-    getWeather();
-  }
+  function (e) {
+  	try {
+		console.log(JSON.stringify(e.payload));
+		if (e.payload["KEY_EXCHANGEDATA"] == 1) 
+		{
+		  console.log("Button SELECT");
+
+		  var myurl="http://192.168.1.40:9002/status.html?p0=play&player=00%3A04%3A20%3A26%3A27%3A45";
+		  xhrRequest(myurl, 'GET', function(responseText) {console.log("senddd");})
+		}
+		if (e.payload["KEY_EXCHANGEDATA"] == 2) 
+		{
+		  var myurl="http://192.168.1.40:9002/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
+		  xhrRequest(myurl, 'GET', function(responseText) {console.log("senddd");})
+		}
+		if (e.payload["exchangeData"] == 3) 
+		{
+		  console.log("Button DOWN");
+		}
+		} catch (exc) {
+		  console.log("exception: " + exc.message);
+		}
+	}
 );

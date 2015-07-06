@@ -10,8 +10,10 @@
     "watchface": false
   },
   "appKeys": {
+    "KEY_EXCHANGEDATA": 0,
     "KEY_TEMPERATURE": 0,
-    "KEY_CONDITIONS": 1
+    "KEY_CONDITIONS": 1,
+    "MESSAGE_KEY": 1
   },
   "resources": {
     "media": [

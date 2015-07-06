@@ -1,7 +1,9 @@
 #include <pebble.h>
 
+#define KEY_EXCHANGEDATA = 4
 #define KEY_TEMPERATURE 0
 #define KEY_CONDITIONS 1
+#define MESSAGE_KEY = 1
 
 
 static Window *s_main_window;
@@ -9,6 +11,41 @@ static TextLayer *s_time_layer;
 static TextLayer *s_weather_layer;
 
 static GFont s_weather_font;
+
+
+void send_int(uint8_t key, uint8_t cmd)
+{
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  Tuplet value = TupletInteger(key, cmd);
+  dict_write_tuplet(iter, &value);
+  app_message_outbox_send();
+}
+
+void select_click_handler(ClickRecognizerRef recognizer, void *context) {
+  // APP_LOG(APP_LOG_LEVEL_DEBUG, "click SELECT");
+  text_layer_set_text(s_time_layer, "play");
+    send_int(0, 1);
+}
+
+void up_click_handler(ClickRecognizerRef recognizer, void *context) {
+  // APP_LOG(APP_LOG_LEVEL_DEBUG, "click UP");
+  text_layer_set_text(s_time_layer, "pause");
+    send_int(0, 2);
+}
+
+void down_click_handler(ClickRecognizerRef recognizer, void *context) {
+  // APP_LOG(APP_LOG_LEVEL_DEBUG, "click DOWN");
+  text_layer_set_text(s_time_layer, "Down");
+    send_int(0, 3);
+}
+
+void click_config_provider(void *context) {
+  window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
+  window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
+  window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
+}
+
 
 static void main_window_load(Window *window) {
   // Create time TextLayer
@@ -89,12 +126,13 @@ static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResul
 }
 
 static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+  // APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
 static void init() {
   // Create main Window element and assign to pointer
   s_main_window = window_create();
+  window_set_click_config_provider(s_main_window, click_config_provider);
 
   // Set handlers to manage the elements inside the Window
   window_set_window_handlers(s_main_window, (WindowHandlers) {
