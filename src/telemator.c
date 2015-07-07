@@ -8,6 +8,8 @@
 #define NUM_SECOND_MENU_ITEMS 1
 
 static Window *s_main_window;
+static Window *windows_squeezebox;
+static TextLayer *text_layer;
 static TextLayer *s_time_layer;
 static TextLayer *s_weather_layer;
 
@@ -55,7 +57,8 @@ void down_click_handler(ClickRecognizerRef recognizer, void *context) {
 void back_click_handler(ClickRecognizerRef recognizer, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "BACKK");
   text_layer_set_text(s_time_layer, "BACKK");
-  action_bar_layer_destroy(action_bar);
+  // window_stack_push(s_main_window, true);
+  window_stack_pop(true);
 }
 
 static void menu_select_callback(int index, void *ctx) {
@@ -70,14 +73,17 @@ void click_config_provider2(void *context) {
 }
 
 static void menu_squeezebox(int index, void *ctx) {
-  s_first_menu_items[index].subtitle = "Go SB";
+  window_stack_push(windows_squeezebox, true);
+}
+
+static void windows_squeezebox_load(Window *window){
   layer_mark_dirty(simple_menu_layer_get_layer(s_simple_menu_layer));
 
   // Initialize the action bar:
   action_bar = action_bar_layer_create();
   action_bar_layer_set_background_color(action_bar, GColorRed);
   // Associate the action bar with the window:
-  action_bar_layer_add_to_window(action_bar, s_main_window);
+  action_bar_layer_add_to_window(action_bar, window);
   // Set the click config provider:
   action_bar_layer_set_click_config_provider(action_bar, click_config_provider2);
 
@@ -87,7 +93,11 @@ static void menu_squeezebox(int index, void *ctx) {
   action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_UP, s_background_bitmap, true);
   // action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_DOWN, my_icon_next, true);
 
-  simple_menu_layer_destroy(s_simple_menu_layer);
+  // simple_menu_layer_destroy(s_simple_menu_layer); 
+}
+static void windows_squeezebox_unload(Window *window)
+{
+  action_bar_layer_destroy(action_bar);
 }
 
 static void special_select_callback(int index, void *ctx) {
@@ -205,12 +215,18 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 static void init() {
   // Create main Window element and assign to pointer
   s_main_window = window_create();
+  windows_squeezebox = window_create();
   window_set_click_config_provider(s_main_window, click_config_provider);
 
   // Set handlers to manage the elements inside the Window
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = main_window_load,
     .unload = main_window_unload
+  });
+
+  window_set_window_handlers(windows_squeezebox, (WindowHandlers) {
+    .load = windows_squeezebox_load,
+    .unload = windows_squeezebox_unload
   });
 
   // Show the Window on the watch, with animated=true
