@@ -25,10 +25,44 @@ static GFont s_weather_font;
 static bool s_special_flag = false;
 static int s_hit_count = 0;
 
+void send_int(char* key, char* cmd)
+{
+  DictionaryIterator* dictionaryIterator = NULL;
+  app_message_outbox_begin (&dictionaryIterator);
+  dict_write_cstring (dictionaryIterator, STATUS_KEY, key);
+  dict_write_cstring (dictionaryIterator, MESSAGE_KEY, cmd);
+  dict_write_end (dictionaryIterator);
+  app_message_outbox_send();
+}
+
+void select_click_handler(ClickRecognizerRef recognizer, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "click SELECT");
+  text_layer_set_text(s_time_layer, "play");
+    send_int("sb", "play");
+}
+
+void up_click_handler(ClickRecognizerRef recognizer, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "click UP");
+  text_layer_set_text(s_time_layer, "pause");
+    send_int("sb", "pause");
+}
+
+void down_click_handler(ClickRecognizerRef recognizer, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "click DOWN");
+  text_layer_set_text(s_time_layer, "Down");
+    send_int("sb", "dddd");
+}
+
 static void menu_select_callback(int index, void *ctx) {
   s_first_menu_items[index].subtitle = "You've hit select here!";
   layer_mark_dirty(simple_menu_layer_get_layer(s_simple_menu_layer));
 }
+
+void click_config_provider2(void *context) {
+  window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) down_click_handler);
+  window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) up_click_handler);
+}
+
 static void menu_squeezebox(int index, void *ctx) {
   s_first_menu_items[index].subtitle = "Go SB";
   layer_mark_dirty(simple_menu_layer_get_layer(s_simple_menu_layer));
@@ -39,8 +73,7 @@ static void menu_squeezebox(int index, void *ctx) {
   // Associate the action bar with the window:
   action_bar_layer_add_to_window(action_bar, s_main_window);
   // Set the click config provider:
-  // action_bar_layer_set_click_config_provider(action_bar,
-  //                                            click_config_provider);
+  action_bar_layer_set_click_config_provider(action_bar, click_config_provider2);
 
   // Set the icons:
   s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_PLAY);
@@ -108,34 +141,6 @@ static void special_select_callback(int index, void *ctx) {
   }
 
   layer_mark_dirty(simple_menu_layer_get_layer(s_simple_menu_layer));
-}
-
-void send_int(char* key, char* cmd)
-{
-  DictionaryIterator* dictionaryIterator = NULL;
-  app_message_outbox_begin (&dictionaryIterator);
-  dict_write_cstring (dictionaryIterator, STATUS_KEY, key);
-  dict_write_cstring (dictionaryIterator, MESSAGE_KEY, cmd);
-  dict_write_end (dictionaryIterator);
-  app_message_outbox_send();
-}
-
-void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "click SELECT");
-  text_layer_set_text(s_time_layer, "play");
-    send_int("sb", "play");
-}
-
-void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "click UP");
-  text_layer_set_text(s_time_layer, "pause");
-    send_int("sb", "pause");
-}
-
-void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "click DOWN");
-  text_layer_set_text(s_time_layer, "Down");
-    send_int("sb", "dddd");
 }
 
 void click_config_provider(void *context) {
