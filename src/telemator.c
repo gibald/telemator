@@ -52,6 +52,11 @@ void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   text_layer_set_text(s_time_layer, "Down");
     send_int("sb", "dddd");
 }
+void back_click_handler(ClickRecognizerRef recognizer, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "BACKK");
+  text_layer_set_text(s_time_layer, "BACKK");
+  action_bar_layer_destroy(action_bar);
+}
 
 static void menu_select_callback(int index, void *ctx) {
   s_first_menu_items[index].subtitle = "You've hit select here!";
@@ -61,6 +66,7 @@ static void menu_select_callback(int index, void *ctx) {
 void click_config_provider2(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) down_click_handler);
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) up_click_handler);
+  window_single_click_subscribe(BUTTON_ID_BACK, (ClickHandler) back_click_handler);
 }
 
 static void menu_squeezebox(int index, void *ctx) {
@@ -80,45 +86,6 @@ static void menu_squeezebox(int index, void *ctx) {
   // The loading of the icons is omitted for brevity... See gbitmap_create_with_resource()
   action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_UP, s_background_bitmap, true);
   // action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_DOWN, my_icon_next, true);
-
-  // int num_a_items = 0;
-
-  // s_first_menu_items[num_a_items++] = (SimpleMenuItem) {
-  //   .title = "SqueezeBox",
-  //   .callback = menu_squeezebox,
-  // };
-  // s_first_menu_items[num_a_items++] = (SimpleMenuItem) {
-  //   .title = "kodi",
-  //   .subtitle = "Here's a subtitle",
-  //   .callback = menu_select_callback,
-  // };
-  // s_first_menu_items[num_a_items++] = (SimpleMenuItem) {
-  //   .title = "Third Item",
-  //   .subtitle = "This has an icon",
-  //   .callback = menu_select_callback,
-  //   .icon = s_menu_icon_image,
-  // };
-
-  // s_second_menu_items[0] = (SimpleMenuItem) {
-  //   .title = "Special Item",
-  // };
-
-  // s_menu_sections[0] = (SimpleMenuSection) {
-  //   .num_items = NUM_FIRST_MENU_ITEMS,
-  //   .items = s_first_menu_items,
-  // };
-  // s_menu_sections[1] = (SimpleMenuSection) {
-  //   .title = "Yet Another Section",
-  //   .num_items = NUM_SECOND_MENU_ITEMS,
-  //   .items = s_second_menu_items,
-  // };
-
-  // Layer *window_layer = window_get_root_layer(s_main_window);
-  // GRect bounds = layer_get_frame(window_layer);
-
-  // s_simple_menu_layer = simple_menu_layer_create(bounds, s_main_window, s_menu_sections, NUM_MENU_SECTIONS, NULL);
-
-  // layer_add_child(window_layer, simple_menu_layer_get_layer(s_simple_menu_layer));
 
   simple_menu_layer_destroy(s_simple_menu_layer);
 }
