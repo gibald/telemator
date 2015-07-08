@@ -90,9 +90,6 @@ Pebble.addEventListener('appmessage',
 		if (e.payload["MESSAGE_KEY"] == "play") 
 		{
 		  console.log("Button SELECT");
-      // var myurl="http://192.168.1.40:9002/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
-      // xhrRequest(myurl, 'GET', function(responseText) {console.log("senddd");})
-
       var url1="http://192.168.1.40:9002/jsonrpc.js";
       var myData='{"id":1,"method":"slim.request","params":["00:04:20:26:27:45",["status","-",1,"tags:gABbehldiqtyrSuoKLN"]]}'
       ajaxJSONPost(url1, myData,
@@ -102,19 +99,37 @@ Pebble.addEventListener('appmessage',
           var title = json.result.playlist_loop[0].title;
           var albumartist = json.result.playlist_loop[0].albumartist;
           var album = json.result.playlist_loop[0].album;
-          console.log(title+" de "+album+" par "+albumartist);
+          var info = title+" de "+album+" par "+albumartist;
+          console.log(info);
+
+          // Assemble dictionary using our keys
+          var dictionary = {
+            "TITLE_INFO": title,
+            "ARTIST_INFO": albumartist,
+            "ALBUM_INFO": album,
+          };
+     
+          // Send to Pebble
+          Pebble.sendAppMessage(dictionary,
+            function(e) {
+              console.log("Info sent to Pebble successfully!");
+            },
+            function(e) {
+              console.log("Error sending weather info to Pebble!");
+            }
+          );
         }
       );
 		}
 		if (e.payload["MESSAGE_KEY"] == "previous") 
 		{
-		  var myurl="http://192.168.1.40:9002/status.html?p0=playlist&p1=jump&p2=-1&player=00%3A04%3A20%3A26%3A27%3A45";
+		  var myurl="http://192.168.1.400:9002/status.html?p0=playlist&p1=jump&p2=-1&player=00%3A04%3A20%3A26%3A27%3A45";
 		  xhrRequest(myurl, 'GET', function(responseText) {console.log("senddd");})
 		}
 		if (e.payload["MESSAGE_KEY"] == "next") 
 		{
 		  console.log("Button DOWN");
-      var myurl="http://192.168.1.40:9002/status.html?p0=playlist&p1=jump&p2=%2b1&player=00%3A04%3A20%3A26%3A27%3A45";
+      var myurl="http://192.168.1.400:9002/status.html?p0=playlist&p1=jump&p2=%2b1&player=00%3A04%3A20%3A26%3A27%3A45";
       xhrRequest(myurl, 'GET', function(responseText) {console.log("senddd");})
 		}
 		} catch (exc) {

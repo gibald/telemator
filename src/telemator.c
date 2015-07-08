@@ -2,6 +2,9 @@
 
 #define STATUS_KEY 0
 #define MESSAGE_KEY 1
+#define TITLE_INFO 2
+#define ARTIST_INFO 3
+#define ALBUM_INFO 4
 
 #define NUM_MENU_SECTIONS 2
 #define NUM_FIRST_MENU_ITEMS 3
@@ -12,6 +15,9 @@ static Window *windows_squeezebox;
 static Window *window_advance_squeezebox;
 static TextLayer *text_layer;
 static TextLayer *s_time_layer;
+static TextLayer *s_title_info_layer;
+static TextLayer *s_artist_info_layer;
+static TextLayer *s_album_info_layer;
 static TextLayer *s_weather_layer;
 
 static GBitmap *s_background_bitmap;
@@ -106,9 +112,42 @@ static void windows_squeezebox_load(Window *window){
   action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_UP, s_background_bitmap, true);
   s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_NEXT);
   action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_DOWN, s_background_bitmap, true);
+
+  // Create title TextLayer
+  s_title_info_layer = text_layer_create(GRect(0, 30, 144, 25));
+  text_layer_set_background_color(s_title_info_layer, GColorClear);
+  text_layer_set_text_color(s_title_info_layer, GColorRed);
+  text_layer_set_text(s_title_info_layer, "title");
+  // s_weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
+  // text_layer_set_font(s_title_info_layer, s_weather_font);
+  // Add it as a child layer to the Window's root layer
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_title_info_layer));
+
+  // Create album TextLayer
+  s_album_info_layer = text_layer_create(GRect(0, 60, 144, 25));
+  text_layer_set_background_color(s_album_info_layer, GColorClear);
+  text_layer_set_text_color(s_album_info_layer, GColorRed);
+  text_layer_set_text(s_album_info_layer, "album");
+  // s_weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
+  // text_layer_set_font(s_album_info_layer, s_weather_font);
+  // Add it as a child layer to the Window's root layer
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_album_info_layer));
+
+  // Create artist TextLayer
+  s_artist_info_layer = text_layer_create(GRect(0, 90, 144, 25));
+  text_layer_set_background_color(s_artist_info_layer, GColorClear);
+  text_layer_set_text_color(s_artist_info_layer, GColorRed);
+  text_layer_set_text(s_artist_info_layer, "artist");
+  // s_weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
+  // text_layer_set_font(s_artist_info_layer, s_weather_font);
+  // Add it as a child layer to the Window's root layer
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_artist_info_layer));
 }
 static void windows_squeezebox_unload(Window *window){
   action_bar_layer_destroy(action_bar);
+  text_layer_destroy(s_title_info_layer);
+  text_layer_destroy(s_album_info_layer);
+  text_layer_destroy(s_artist_info_layer);
 }
 
 static void menu_advance_squeezebox(int index, void *ctx) {
@@ -258,7 +297,40 @@ static void main_window_unload(Window *window) {
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
-
+  static char title_info_layer_buffer[32];
+  static char artist_info_layer_buffer[32];
+  static char album_info_layer_buffer[32];
+  
+  // Read first item
+  Tuple *t = dict_read_first(iterator);
+ 
+  // For all items
+  while(t != NULL) {
+    // Which key was received?
+    switch(t->key) {
+    case TITLE_INFO:
+      snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
+      break;
+    case ARTIST_INFO:
+      snprintf(artist_info_layer_buffer, sizeof(artist_info_layer_buffer), "%s", t->value->cstring);
+      break;
+    case ALBUM_INFO:
+      snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t->value->cstring);
+      break;
+    default:
+      APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
+      break;
+    }
+ 
+    // Look for next item
+    t = dict_read_next(iterator);
+  }
+  
+  // Assemble full string and display
+  // snprintf(weather_layer_buffer, sizeof(weather_layer_buffer), "%s, %s", title_info_layer_buffer, conditions_buffer);
+  text_layer_set_text(s_title_info_layer, title_info_layer_buffer);
+  text_layer_set_text(s_artist_info_layer, artist_info_layer_buffer);
+  text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {

@@ -11,7 +11,10 @@
   },
   "appKeys": {
     "STATUS_KEY": 0,
-    "MESSAGE_KEY": 1
+    "MESSAGE_KEY": 1,
+    "TITLE_INFO": 2,
+    "ARTIST_INFO": 3,
+    "ALBUM_INFO": 4
   },
   "resources": {
     "media": [
