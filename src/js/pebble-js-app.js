@@ -7,6 +7,20 @@ var xhrRequest = function (url, type, callback) {
   xhr.send();
 };
 
+function ajaxJSONPost(url, jsondata, callback){
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", url);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.onreadystatechange = function () {
+    // console.log(xhr.readyState);
+    // console.log(xhr.status);
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      callback(xhr.responseText);
+    }
+  }
+  xhr.send(jsondata);
+}
+
 function locationSuccess(pos) {
   // Construct URL
   var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
@@ -76,8 +90,21 @@ Pebble.addEventListener('appmessage',
 		if (e.payload["MESSAGE_KEY"] == "play") 
 		{
 		  console.log("Button SELECT");
-		  var myurl="http://192.168.1.40:9002/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
-		  xhrRequest(myurl, 'GET', function(responseText) {console.log("senddd");})
+      // var myurl="http://192.168.1.40:9002/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
+      // xhrRequest(myurl, 'GET', function(responseText) {console.log("senddd");})
+
+      var url1="http://192.168.1.40:9002/jsonrpc.js";
+      var myData='{"id":1,"method":"slim.request","params":["00:04:20:26:27:45",["status","-",1,"tags:gABbehldiqtyrSuoKLN"]]}'
+      ajaxJSONPost(url1, myData,
+        function(responseText) {
+          // responseText contains a JSON object with weather info
+          var json = JSON.parse(responseText);
+          var title = json.result.playlist_loop[0].title;
+          var albumartist = json.result.playlist_loop[0].albumartist;
+          var album = json.result.playlist_loop[0].album;
+          console.log(title+" de "+album+" par "+albumartist);
+        }
+      );
 		}
 		if (e.payload["MESSAGE_KEY"] == "previous") 
 		{
