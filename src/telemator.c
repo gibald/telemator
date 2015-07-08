@@ -62,13 +62,13 @@ void select_long_click_release_handler(ClickRecognizerRef recognizer, void *cont
 void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "click UP");
   text_layer_set_text(s_time_layer, "previous");
-    send_int("sb", "play");
+    send_int("sb", "previous");
 }
 
 void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "click DOWN");
   text_layer_set_text(s_time_layer, "next");
-    send_int("sb", "dddd");
+    send_int("sb", "next");
 }
 
 static void menu_select_callback(int index, void *ctx) {

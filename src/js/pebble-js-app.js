@@ -73,21 +73,22 @@ Pebble.addEventListener('appmessage',
   function (e) {
   	try {
 		console.log(JSON.stringify(e.payload));
-		if (e.payload["KEY_EXCHANGEDATA"] == 1) 
+		if (e.payload["MESSAGE_KEY"] == "play") 
 		{
 		  console.log("Button SELECT");
-
-		  var myurl="http://192.168.1.400:9002/status.html?p0=play&player=00%3A04%3A20%3A26%3A27%3A45";
+		  var myurl="http://192.168.1.40:9002/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
 		  xhrRequest(myurl, 'GET', function(responseText) {console.log("senddd");})
 		}
-		if (e.payload["KEY_EXCHANGEDATA"] == 2) 
+		if (e.payload["MESSAGE_KEY"] == "previous") 
 		{
-		  var myurl="http://192.168.1.400:9002/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
+		  var myurl="http://192.168.1.40:9002/status.html?p0=playlist&p1=jump&p2=-1&player=00%3A04%3A20%3A26%3A27%3A45";
 		  xhrRequest(myurl, 'GET', function(responseText) {console.log("senddd");})
 		}
-		if (e.payload["exchangeData"] == 3) 
+		if (e.payload["MESSAGE_KEY"] == "next") 
 		{
 		  console.log("Button DOWN");
+      var myurl="http://192.168.1.40:9002/status.html?p0=playlist&p1=jump&p2=%2b1&player=00%3A04%3A20%3A26%3A27%3A45";
+      xhrRequest(myurl, 'GET', function(responseText) {console.log("senddd");})
 		}
 		} catch (exc) {
 		  console.log("exception: " + exc.message);
