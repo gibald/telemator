@@ -1,8 +1,8 @@
 {
   "uuid": "afb25e3f-4958-4148-8e87-8534c0554781",
-  "shortName": "telemator2",
-  "longName": "telemator2",
-  "companyName": "MakeAwesomeHappen",
+  "shortName": "telemator",
+  "longName": "telemator",
+  "companyName": "Gibald",
   "versionLabel": "1.0",
   "sdkVersion": "3",
   "targetPlatforms": ["basalt"],
@@ -24,7 +24,17 @@
       {
         "type": "png",
         "name": "ICON_PLAY",
-        "file": "play-icon.png"
+        "file": "play.png"
+      },
+      {
+        "type": "png",
+        "name": "ICON_NEXT",
+        "file": "skip-next.png"
+      },
+      {
+        "type": "png",
+        "name": "ICON_PREVIOUS",
+        "file": "skip-previous.png"
       }
     ]
   },

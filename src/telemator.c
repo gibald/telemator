@@ -90,8 +90,11 @@ static void windows_squeezebox_load(Window *window){
   // Set the icons:
   s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_PLAY);
   // The loading of the icons is omitted for brevity... See gbitmap_create_with_resource()
+  action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_SELECT, s_background_bitmap, true);
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_PREVIOUS);
   action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_UP, s_background_bitmap, true);
-  // action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_DOWN, my_icon_next, true);
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_NEXT);
+  action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_DOWN, s_background_bitmap, true);
 
   // simple_menu_layer_destroy(s_simple_menu_layer); 
 }
