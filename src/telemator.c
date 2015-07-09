@@ -13,6 +13,7 @@
 static Window *s_main_window;
 static Window *windows_squeezebox;
 static Window *window_advance_squeezebox;
+static Window *windows_kodi;
 static TextLayer *text_layer;
 static TextLayer *s_time_layer;
 static TextLayer *s_title_info_layer;
@@ -153,6 +154,60 @@ static void windows_squeezebox_unload(Window *window){
   text_layer_destroy(s_artist_info_layer);
 }
 
+static void menu_kodi(int index, void *ctx) {
+  window_stack_push(windows_kodi, true);
+}
+
+static void windows_kodi_load(Window *window){
+  // layer_mark_dirty(simple_menu_layer_get_layer(s_simple_menu_layer));
+
+  // Initialize the action bar:
+  action_bar = action_bar_layer_create();
+  action_bar_layer_set_background_color(action_bar, GColorRed);
+  // Associate the action bar with the window:
+  action_bar_layer_add_to_window(action_bar, window);
+  // Set the click config provider:
+  action_bar_layer_set_click_config_provider(action_bar, click_config_provider2);
+
+  // Set the icons:
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_PLAY);
+  // The loading of the icons is omitted for brevity... See gbitmap_create_with_resource()
+  action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_SELECT, s_background_bitmap, true);
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_PREVIOUS);
+  action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_UP, s_background_bitmap, true);
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_NEXT);
+  action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_DOWN, s_background_bitmap, true);
+
+  // Create title TextLayer
+  s_title_info_layer = text_layer_create(GRect(0, 10, 144, 25));
+  text_layer_set_background_color(s_title_info_layer, GColorClear);
+  text_layer_set_text_color(s_title_info_layer, GColorRed);
+  text_layer_set_text(s_title_info_layer, "Kodi");
+  // s_weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
+  // text_layer_set_font(s_title_info_layer, s_weather_font);
+  // Add it as a child layer to the Window's root layer
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_title_info_layer));
+
+  // Create Movie TextLayer
+  s_album_info_layer = text_layer_create(GRect(0, 60, 144, 25));
+  text_layer_set_background_color(s_album_info_layer, GColorClear);
+  text_layer_set_text_color(s_album_info_layer, GColorRed);
+  text_layer_set_text(s_album_info_layer, "album");
+  // s_weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
+  // text_layer_set_font(s_album_info_layer, s_weather_font);
+  // Add it as a child layer to the Window's root layer
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_album_info_layer));
+
+  //Request track info
+  // send_int("sb", "track_info");
+}
+static void windows_kodi_unload(Window *window){
+  action_bar_layer_destroy(action_bar);
+  text_layer_destroy(s_title_info_layer);
+  text_layer_destroy(s_album_info_layer);
+  text_layer_destroy(s_artist_info_layer);
+}
+
 static void menu_advance_squeezebox(int index, void *ctx) {
   window_stack_push(window_advance_squeezebox, true);
 }
@@ -242,9 +297,8 @@ static void main_window_load(Window *window) {
     .callback = menu_squeezebox,
   };
   s_first_menu_items[num_a_items++] = (SimpleMenuItem) {
-    .title = "kodi",
-    .subtitle = "Here's a subtitle",
-    .callback = menu_select_callback,
+    .title = "Kodi",
+    .callback = menu_kodi,
   };
   s_first_menu_items[num_a_items++] = (SimpleMenuItem) {
     .title = "Third Item",
@@ -352,6 +406,7 @@ static void init() {
   // Create main Window element and assign to pointer
   s_main_window = window_create();
   windows_squeezebox = window_create();
+  windows_kodi = window_create();
   window_advance_squeezebox = window_create();
   window_set_click_config_provider(s_main_window, click_config_provider);
 
@@ -371,6 +426,10 @@ static void init() {
     .unload = windows_advance_squeezebox_unload
   });
 
+  window_set_window_handlers(windows_kodi, (WindowHandlers) {
+    .load = windows_kodi_load,
+    .unload = windows_kodi_unload
+  });
   // Show the Window on the watch, with animated=true
   window_stack_push(s_main_window, true);
 
