@@ -21,44 +21,6 @@ function ajaxJSONPost(url, jsondata, callback){
   xhr.send(jsondata);
 }
 
-function locationSuccess(pos) {
-  // Construct URL
-  var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
-      pos.coords.latitude + '&lon=' + pos.coords.longitude;
-
-  // Send request to OpenWeatherMap
-  xhrRequest(url, 'GET', 
-    function(responseText) {
-      // responseText contains a JSON object with weather info
-      var json = JSON.parse(responseText);
-
-      // Temperature in Kelvin requires adjustment
-      var temperature = Math.round(json.main.temp - 273.15);
-      console.log('Temperature is ' + temperature);
-
-      // Conditions
-      var conditions = json.weather[0].main;      
-      console.log("Conditions are " + conditions);
-      
-      // Assemble dictionary using our keys
-      var dictionary = {
-        "KEY_TEMPERATURE": temperature,
-        "KEY_CONDITIONS": conditions
-      };
- 
-      // Send to Pebble
-      Pebble.sendAppMessage(dictionary,
-        function(e) {
-          console.log("Weather info sent to Pebble successfully!");
-        },
-        function(e) {
-          console.log("Error sending weather info to Pebble!");
-        }
-      );
-    }      
-  );
-}
-
 function locationError(err) {
   console.log('Error requesting location!');
 }
@@ -86,10 +48,10 @@ Pebble.addEventListener('ready',
 Pebble.addEventListener('appmessage',
   function (e) {
   	try {
-		console.log(JSON.stringify(e.payload));
+		// console.log(JSON.stringify(e.payload));
 		if (e.payload["MESSAGE_KEY"] == "track_info") 
 		{
-		  console.log("Button SELECT");
+		  // console.log("Button SELECT");
       var url1="http://192.168.1.40:9002/jsonrpc.js";
       var myData='{"id":1,"method":"slim.request","params":["00:04:20:26:27:45",["status","-",1,"tags:gABbehldiqtyrSuoKLN"]]}'
       ajaxJSONPost(url1, myData,
@@ -97,10 +59,10 @@ Pebble.addEventListener('appmessage',
           // responseText contains a JSON object with weather info
           var json = JSON.parse(responseText);
           var title = json.result.playlist_loop[0].title;
-          var albumartist = json.result.playlist_loop[0].albumartist;
+          var albumartist = json.result.playlist_loop[0].artist;
           var album = json.result.playlist_loop[0].album;
-          var info = title+" de "+album+" par "+albumartist;
-          console.log(info);
+          // var info = title+" de "+album+" par "+albumartist;
+          // console.log(info);
 
           // Assemble dictionary using our keys
           var dictionary = {
@@ -122,15 +84,15 @@ Pebble.addEventListener('appmessage',
       );
 		}
     if (e.payload["MESSAGE_KEY"] == "play"){
-      var myurl="http://192.168.1.400:9002/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
+      var myurl="http://192.168.1.40:9002/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
       xhrRequest(myurl, 'GET', function(responseText) {console.log("play");})
     }
     if (e.payload["MESSAGE_KEY"] == "previous"){
-		  var myurl="http://192.168.1.400:9002/status.html?p0=playlist&p1=jump&p2=-1&player=00%3A04%3A20%3A26%3A27%3A45";
+		  var myurl="http://192.168.1.40:9002/status.html?p0=playlist&p1=jump&p2=-1&player=00%3A04%3A20%3A26%3A27%3A45";
 		  xhrRequest(myurl, 'GET', function(responseText) {console.log("previous");})
 		}
 		if (e.payload["MESSAGE_KEY"] == "next"){
-      var myurl="http://192.168.1.400:9002/status.html?p0=playlist&p1=jump&p2=%2b1&player=00%3A04%3A20%3A26%3A27%3A45";
+      var myurl="http://192.168.1.40:9002/status.html?p0=playlist&p1=jump&p2=%2b1&player=00%3A04%3A20%3A26%3A27%3A45";
       xhrRequest(myurl, 'GET', function(responseText) {console.log("next");})
 		}
 		} catch (exc) {
