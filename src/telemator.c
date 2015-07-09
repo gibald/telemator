@@ -2,9 +2,10 @@
 
 #define STATUS_KEY 0
 #define MESSAGE_KEY 1
-#define TITLE_INFO 2
-#define ARTIST_INFO 3
-#define ALBUM_INFO 4
+#define PLAT 2
+#define TITLE_INFO 3
+#define ARTIST_INFO 4
+#define ALBUM_INFO 5
 
 #define NUM_MENU_SECTIONS 2
 #define NUM_FIRST_MENU_ITEMS 3
@@ -55,7 +56,6 @@ void send_int(char* key, char* cmd)
 
 void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "click SELECT");
-  text_layer_set_text(s_time_layer, "play");
   send_int("sb", "play");
 }
 void select_long_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -68,13 +68,11 @@ void select_long_click_release_handler(ClickRecognizerRef recognizer, void *cont
 
 void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "click UP");
-  text_layer_set_text(s_time_layer, "previous");
   send_int("sb", "previous");
 }
 
 void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "click DOWN");
-  text_layer_set_text(s_time_layer, "next");
   send_int("sb", "next");
 }
 
@@ -154,6 +152,35 @@ static void windows_squeezebox_unload(Window *window){
   text_layer_destroy(s_artist_info_layer);
 }
 
+void select_click_handler_kodi(ClickRecognizerRef recognizer, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "click kodi SELECT");
+  send_int("kodi", "play");
+}
+// void select_long_click_handler(ClickRecognizerRef recognizer, void *context) {
+//   APP_LOG(APP_LOG_LEVEL_DEBUG, "LOoooooong SELECT");
+//   window_stack_push(window_advance_squeezebox, true);
+// }
+// void select_long_click_release_handler(ClickRecognizerRef recognizer, void *context) {
+//   APP_LOG(APP_LOG_LEVEL_DEBUG, "LOoooooong SELECT release");
+// }
+
+// void up_click_handler(ClickRecognizerRef recognizer, void *context) {
+//   APP_LOG(APP_LOG_LEVEL_DEBUG, "click UP");
+//   send_int("sb", "previous");
+// }
+
+// void down_click_handler_kodi(ClickRecognizerRef recognizer, void *context) {
+//   APP_LOG(APP_LOG_LEVEL_DEBUG, "click DOWN");
+//   send_int("sb", "next");
+// }
+
+void click_config_provider_kodi(void *context) {
+  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_click_handler_kodi);
+  // window_long_click_subscribe(BUTTON_ID_SELECT, 700,(ClickHandler) select_long_click_handler, select_long_click_release_handler);
+  // window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) down_click_handler);
+  // window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) up_click_handler);
+}
+
 static void menu_kodi(int index, void *ctx) {
   window_stack_push(windows_kodi, true);
 }
@@ -167,7 +194,7 @@ static void windows_kodi_load(Window *window){
   // Associate the action bar with the window:
   action_bar_layer_add_to_window(action_bar, window);
   // Set the click config provider:
-  action_bar_layer_set_click_config_provider(action_bar, click_config_provider2);
+  action_bar_layer_set_click_config_provider(action_bar, click_config_provider_kodi);
 
   // Set the icons:
   s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_PLAY);
@@ -205,7 +232,6 @@ static void windows_kodi_unload(Window *window){
   action_bar_layer_destroy(action_bar);
   text_layer_destroy(s_title_info_layer);
   text_layer_destroy(s_album_info_layer);
-  text_layer_destroy(s_artist_info_layer);
 }
 
 static void menu_advance_squeezebox(int index, void *ctx) {
@@ -258,26 +284,6 @@ static void windows_advance_squeezebox_unload(Window *window) {
   simple_menu_layer_destroy(s_advance_squeezebox_menu_layer);
 }
 
-static void special_select_callback(int index, void *ctx) {
-  // Of course, you can do more complicated things in a menu item select callback
-  // Here, we have a simple toggle
-  s_special_flag = !s_special_flag;
-
-  SimpleMenuItem *menu_item = &s_second_menu_items[index];
-
-  if (s_special_flag) {
-    menu_item->subtitle = "Okay, it's not so special.";
-  } else {
-    menu_item->subtitle = "Well, maybe a little.";
-  }
-
-  if (++s_hit_count > 5) {
-    menu_item->title = "Very Special Item";
-  }
-
-  layer_mark_dirty(simple_menu_layer_get_layer(s_simple_menu_layer));
-}
-
 void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
@@ -307,11 +313,6 @@ static void main_window_load(Window *window) {
     .icon = s_menu_icon_image,
   };
 
-  s_second_menu_items[0] = (SimpleMenuItem) {
-    .title = "Special Item",
-    .callback = special_select_callback,
-  };
-
   s_menu_sections[0] = (SimpleMenuSection) {
     .num_items = NUM_FIRST_MENU_ITEMS,
     .items = s_first_menu_items,
@@ -328,27 +329,9 @@ static void main_window_load(Window *window) {
   s_simple_menu_layer = simple_menu_layer_create(bounds, window, s_menu_sections, NUM_MENU_SECTIONS, NULL);
 
   layer_add_child(window_layer, simple_menu_layer_get_layer(s_simple_menu_layer));
-
-  // Create time TextLayer
-  s_time_layer = text_layer_create(GRect(0, 130, 144, 25));
-  text_layer_set_background_color(s_time_layer, GColorClear);
-  text_layer_set_text_color(s_time_layer, GColorRed);
-  text_layer_set_text(s_time_layer, "00:00");
-
-  s_weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
-  text_layer_set_font(s_time_layer, s_weather_font);
-  // Add it as a child layer to the Window's root layer
-  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
 }
 
 static void main_window_unload(Window *window) {
-  // Destroy TextLayer
-  text_layer_destroy(s_time_layer);
-
-  // Destroy weather elements
-  text_layer_destroy(s_weather_layer);
-  fonts_unload_custom_font(s_weather_font);
-
   simple_menu_layer_destroy(s_simple_menu_layer);
   gbitmap_destroy(s_menu_icon_image);
 }
@@ -360,34 +343,52 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   
   // Read first item
   Tuple *t = dict_read_first(iterator);
- 
-  // For all items
-  while(t != NULL) {
-    // Which key was received?
-    switch(t->key) {
-    case TITLE_INFO:
-      snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
-      break;
-    case ARTIST_INFO:
-      snprintf(artist_info_layer_buffer, sizeof(artist_info_layer_buffer), "%s", t->value->cstring);
-      break;
-    case ALBUM_INFO:
-      snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t->value->cstring);
-      break;
-    default:
-      APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
-      break;
+  if (strcmp(t->value->cstring, "kodi") == 0) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "YEA::::");
+    while(t != NULL) {
+      switch(t->key) {
+        case TITLE_INFO:
+          snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
+          APP_LOG(APP_LOG_LEVEL_ERROR, "YEA:::: %s", title_info_layer_buffer);
+          break;
+        default:
+          APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
+          break;
+      }
+      t = dict_read_next(iterator);
     }
- 
-    // Look for next item
-    t = dict_read_next(iterator);
+  } else {
+    // For all items
+    while(t != NULL) {
+      // Which key was received?
+      // snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
+        switch(t->key) {
+        case TITLE_INFO:
+          snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
+          APP_LOG(APP_LOG_LEVEL_ERROR, "title %s", title_info_layer_buffer);
+          text_layer_set_text(s_title_info_layer, title_info_layer_buffer);
+          break;
+        case ARTIST_INFO:
+          snprintf(artist_info_layer_buffer, sizeof(artist_info_layer_buffer), "%s", t->value->cstring);
+          text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
+          break;
+        case ALBUM_INFO:
+          snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t->value->cstring);
+          text_layer_set_text(s_artist_info_layer, artist_info_layer_buffer);
+          break;
+        case PLAT:
+          snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
+          APP_LOG(APP_LOG_LEVEL_ERROR, "plat %s", title_info_layer_buffer);
+          break;
+        default:
+          APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
+          break;
+        }
+   
+      // Look for next item
+      t = dict_read_next(iterator);
+    }
   }
-  
-  // Assemble full string and display
-  // snprintf(weather_layer_buffer, sizeof(weather_layer_buffer), "%s, %s", title_info_layer_buffer, conditions_buffer);
-  text_layer_set_text(s_title_info_layer, title_info_layer_buffer);
-  text_layer_set_text(s_artist_info_layer, artist_info_layer_buffer);
-  text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
@@ -399,7 +400,7 @@ static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResul
 }
 
 static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
-  // APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
 static void init() {
