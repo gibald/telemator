@@ -1,3 +1,7 @@
+kodi_ip="192.168.1.51";
+kodi_port="8080";
+kodi_url="http://"+kodi_ip+":"+kodi_port+"/jsonrpc?request=";
+
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
   xhr.onload = function () {
@@ -22,12 +26,8 @@ function ajaxJSONPost(url, jsondata, callback){
 }
 
 function send_command_Kodi() {
-  var host="192.168.1.51";
-  var port="8080";
-  var url_kodi='http://' + host + ':' + port + '/jsonrpc?';
-
   var myData='{"jsonrpc": "2.0", "method": "Player.GetItem", "params": {"playerid": 1 }, "id": "test"},'
-  ajaxJSONPost(url_kodi, myData,
+  ajaxJSONPost(kodi_url2, myData,
     function(responseText) {
       // responseText contains a JSON object with weather info
       var json = JSON.parse(responseText);
@@ -139,16 +139,15 @@ Pebble.addEventListener('appmessage',
   		if( e.payload["STATUS_KEY"] == "kodi") {
         console.log("Kodi");
         if (e.payload["MESSAGE_KEY"] == "info"){
-          // console.log("Kodi play1");
           send_command_Kodi();
-          // var myurl="http://192.168.1.400:9002/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
-          // xhrRequest(myurl, 'GET', function(responseText) {console.log("Kodi play");});
         }
         if (e.payload["MESSAGE_KEY"] == "play"){
           console.log("Kodi play");
           send_command_Kodi();
-          var myurl='http://192.168.1.51:8080/jsonrpc?request={"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": 1 }, "id": 1}';
-          xhrRequest(myurl, 'GET', function(responseText) {console.log("Kodi play");});
+          var kodi_url="http://"+kodi_ip+":"+kodi_port+"/jsonrpc?request=";
+          var kodi_command='{"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": 1 }, "id": 1}';
+          // var myurl=kodi_url+kodi_command;
+          xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
         }
       }
 		} catch (exc) {
