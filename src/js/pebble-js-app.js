@@ -138,11 +138,17 @@ Pebble.addEventListener('appmessage',
       }
   		if( e.payload["STATUS_KEY"] == "kodi") {
         console.log("Kodi");
-        if (e.payload["MESSAGE_KEY"] == "play"){
-          console.log("Kodi play1");
+        if (e.payload["MESSAGE_KEY"] == "info"){
+          // console.log("Kodi play1");
           send_command_Kodi();
           // var myurl="http://192.168.1.400:9002/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
           // xhrRequest(myurl, 'GET', function(responseText) {console.log("Kodi play");});
+        }
+        if (e.payload["MESSAGE_KEY"] == "play"){
+          console.log("Kodi play");
+          send_command_Kodi();
+          var myurl='http://192.168.1.51:8080/jsonrpc?request={"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": 1 }, "id": 1}';
+          xhrRequest(myurl, 'GET', function(responseText) {console.log("Kodi play");});
         }
       }
 		} catch (exc) {

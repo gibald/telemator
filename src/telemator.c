@@ -214,14 +214,14 @@ static void windows_kodi_load(Window *window){
   s_album_info_layer = text_layer_create(GRect(0, 60, 144, 25));
   text_layer_set_background_color(s_album_info_layer, GColorClear);
   text_layer_set_text_color(s_album_info_layer, GColorRed);
-  text_layer_set_text(s_album_info_layer, "album");
+  text_layer_set_text(s_album_info_layer, "Movie");
   // s_weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
   // text_layer_set_font(s_album_info_layer, s_weather_font);
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_album_info_layer));
 
-  //Request track info
-  // send_int("sb", "track_info");
+  //Request info
+  send_int("kodi", "info");
 }
 static void windows_kodi_unload(Window *window){
   action_bar_layer_destroy(action_bar);
@@ -325,12 +325,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   // Read first item
   Tuple *t = dict_read_first(iterator);
   if (strcmp(t->value->cstring, "kodi") == 0) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "YEA::::");
     while(t != NULL) {
       switch(t->key) {
         case TITLE_INFO:
-          snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
-          APP_LOG(APP_LOG_LEVEL_ERROR, "YEA:::: %s", title_info_layer_buffer);
+          snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t->value->cstring);
+          APP_LOG(APP_LOG_LEVEL_ERROR, "YEA:::: %s", album_info_layer_buffer);
+          text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
           break;
         default:
           APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
@@ -344,26 +344,26 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       // Which key was received?
       // snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
         switch(t->key) {
-        case TITLE_INFO:
-          snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
-          APP_LOG(APP_LOG_LEVEL_ERROR, "title %s", title_info_layer_buffer);
-          text_layer_set_text(s_title_info_layer, title_info_layer_buffer);
-          break;
-        case ARTIST_INFO:
-          snprintf(artist_info_layer_buffer, sizeof(artist_info_layer_buffer), "%s", t->value->cstring);
-          text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
-          break;
-        case ALBUM_INFO:
-          snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t->value->cstring);
-          text_layer_set_text(s_artist_info_layer, artist_info_layer_buffer);
-          break;
-        case PLAT:
-          snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
-          APP_LOG(APP_LOG_LEVEL_ERROR, "plat %s", title_info_layer_buffer);
-          break;
-        default:
-          APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
-          break;
+          case TITLE_INFO:
+            snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
+            APP_LOG(APP_LOG_LEVEL_ERROR, "title %s", title_info_layer_buffer);
+            text_layer_set_text(s_title_info_layer, title_info_layer_buffer);
+            break;
+          case ARTIST_INFO:
+            snprintf(artist_info_layer_buffer, sizeof(artist_info_layer_buffer), "%s", t->value->cstring);
+            text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
+            break;
+          case ALBUM_INFO:
+            snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t->value->cstring);
+            text_layer_set_text(s_artist_info_layer, artist_info_layer_buffer);
+            break;
+          case PLAT:
+            snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
+            APP_LOG(APP_LOG_LEVEL_ERROR, "plat %s", title_info_layer_buffer);
+            break;
+          default:
+            APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
+            break;
         }
    
       // Look for next item
