@@ -8,7 +8,7 @@
 #define ALBUM_INFO 5
 
 #define NUM_MENU_SECTIONS 2
-#define NUM_FIRST_MENU_ITEMS 3
+#define NUM_FIRST_MENU_ITEMS 2
 #define NUM_SECOND_MENU_ITEMS 1
 
 static Window *s_main_window;
@@ -16,7 +16,6 @@ static Window *windows_squeezebox;
 static Window *window_advance_squeezebox;
 static Window *windows_kodi;
 static TextLayer *text_layer;
-static TextLayer *s_time_layer;
 static TextLayer *s_title_info_layer;
 static TextLayer *s_artist_info_layer;
 static TextLayer *s_album_info_layer;
@@ -28,7 +27,8 @@ static SimpleMenuLayer *s_simple_menu_layer;
 static SimpleMenuSection s_menu_sections[NUM_MENU_SECTIONS];
 static SimpleMenuItem s_first_menu_items[NUM_FIRST_MENU_ITEMS];
 static SimpleMenuItem s_second_menu_items[NUM_SECOND_MENU_ITEMS];
-static GBitmap *s_menu_icon_image;
+static GBitmap *s_menu_squeezebox_icon_image;
+static GBitmap *s_menu_kodi_icon_image;
 
 static ActionBarLayer *action_bar;
 
@@ -74,11 +74,6 @@ void up_click_handler(ClickRecognizerRef recognizer, void *context) {
 void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "click DOWN");
   send_int("sb", "next");
-}
-
-static void menu_select_callback(int index, void *ctx) {
-  s_first_menu_items[index].subtitle = "You've hit select here!";
-  layer_mark_dirty(simple_menu_layer_get_layer(s_simple_menu_layer));
 }
 
 void click_config_provider2(void *context) {
@@ -245,17 +240,10 @@ static void windows_advance_squeezebox_load(Window *window) {
 
   s_advance_squeezebox_first_menu_items[num_a_items++] = (SimpleMenuItem) {
     .title = "one",
-    .callback = menu_select_callback,
   };
   s_advance_squeezebox_first_menu_items[num_a_items++] = (SimpleMenuItem) {
     .title = "two",
     .subtitle = "Here's a subtitle",
-    .callback = menu_select_callback,
-  };
-  s_advance_squeezebox_first_menu_items[num_a_items++] = (SimpleMenuItem) {
-    .title = "Third Item",
-    .subtitle = "This has an icon",
-    .callback = menu_select_callback,
   };
 
   s_advance_squeezebox_second_menu_items[0] = (SimpleMenuItem) {
@@ -292,7 +280,8 @@ void click_config_provider(void *context) {
 
 
 static void main_window_load(Window *window) {
-  // s_menu_icon_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_MENU_ICON_1);
+  s_menu_squeezebox_icon_image = gbitmap_create_with_resource(RESOURCE_ID_ICON_SQUEEZEBOX);
+  s_menu_kodi_icon_image = gbitmap_create_with_resource(RESOURCE_ID_ICON_KODI);
 
   // Although we already defined NUM_FIRST_MENU_ITEMS, you can define
   // an int as such to easily change the order of menu items later
@@ -301,26 +290,17 @@ static void main_window_load(Window *window) {
   s_first_menu_items[num_a_items++] = (SimpleMenuItem) {
     .title = "SqueezeBox",
     .callback = menu_squeezebox,
+    .icon = s_menu_squeezebox_icon_image,
   };
   s_first_menu_items[num_a_items++] = (SimpleMenuItem) {
     .title = "Kodi",
     .callback = menu_kodi,
-  };
-  s_first_menu_items[num_a_items++] = (SimpleMenuItem) {
-    .title = "Third Item",
-    .subtitle = "This has an icon",
-    .callback = menu_advance_squeezebox,
-    .icon = s_menu_icon_image,
+    .icon = s_menu_kodi_icon_image,
   };
 
   s_menu_sections[0] = (SimpleMenuSection) {
     .num_items = NUM_FIRST_MENU_ITEMS,
     .items = s_first_menu_items,
-  };
-  s_menu_sections[1] = (SimpleMenuSection) {
-    .title = "Yet Another Section",
-    .num_items = NUM_SECOND_MENU_ITEMS,
-    .items = s_second_menu_items,
   };
 
   Layer *window_layer = window_get_root_layer(window);
@@ -333,7 +313,8 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
   simple_menu_layer_destroy(s_simple_menu_layer);
-  gbitmap_destroy(s_menu_icon_image);
+  gbitmap_destroy(s_menu_squeezebox_icon_image);
+  gbitmap_destroy(s_menu_kodi_icon_image);
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
