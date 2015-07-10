@@ -27,7 +27,7 @@ function ajaxJSONPost(url, jsondata, callback){
 
 function send_command_Kodi() {
   var myData='{"jsonrpc": "2.0", "method": "Player.GetItem", "params": {"playerid": 1 }, "id": "test"},'
-  ajaxJSONPost(kodi_url2, myData,
+  ajaxJSONPost(kodi_url, myData,
     function(responseText) {
       // responseText contains a JSON object with weather info
       var json = JSON.parse(responseText);
