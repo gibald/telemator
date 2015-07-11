@@ -322,54 +322,111 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   static char artist_info_layer_buffer[32];
   static char album_info_layer_buffer[32];
   
+  // APP_LOG(APP_LOG_LEVEL_ERROR, "inbox_received_callback");
   // Read first item
   Tuple *t = dict_read_first(iterator);
-  if (strcmp(t->value->cstring, "kodi") == 0) {
-    while(t != NULL) {
-      switch(t->key) {
-        case TITLE_INFO:
-          snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t->value->cstring);
-          APP_LOG(APP_LOG_LEVEL_ERROR, "YEA:::: %s", album_info_layer_buffer);
-          text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
-          break;
-        default:
-          APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
-          break;
-      }
-      t = dict_read_next(iterator);
+  while(t != NULL) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "111 %s", t->value->cstring);
+    switch(t->key) {
+      case PLAT:
+        APP_LOG(APP_LOG_LEVEL_ERROR, "In PLAT");
+        if (strcmp(t->value->cstring, "kodi") == 0) {
+          APP_LOG(APP_LOG_LEVEL_ERROR, "In KODI");
+          Tuple *t2 = dict_read_first(iterator);
+          while(t2 != NULL) {
+            switch(t2->key) {
+               APP_LOG(APP_LOG_LEVEL_ERROR, "In KODI::: %s", t2->value->cstring);
+               case TITLE_INFO:
+                snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t2->value->cstring);
+                APP_LOG(APP_LOG_LEVEL_ERROR, "YEA:::: %s", album_info_layer_buffer);
+                text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
+                break;
+              default:
+                APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t2->key);
+                break;
+            }
+            t2 = dict_read_next(iterator);
+          }
+        }else if (strcmp(t->value->cstring, "sq") == 0) {
+          APP_LOG(APP_LOG_LEVEL_ERROR, "In SQ");
+          Tuple *t2 = dict_read_first(iterator);
+          while(t2 != NULL) {
+            APP_LOG(APP_LOG_LEVEL_ERROR, "In SQ::: %s", t2->value->cstring);
+            switch(t2->key) {
+              case TITLE_INFO:
+                snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t2->value->cstring);
+                APP_LOG(APP_LOG_LEVEL_ERROR, "title %s", title_info_layer_buffer);
+                text_layer_set_text(s_title_info_layer, title_info_layer_buffer);
+                break;
+              case ARTIST_INFO:
+                snprintf(artist_info_layer_buffer, sizeof(artist_info_layer_buffer), "%s", t2->value->cstring);
+                text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
+                break;
+              case ALBUM_INFO:
+                snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t2->value->cstring);
+                text_layer_set_text(s_artist_info_layer, artist_info_layer_buffer);
+                break;
+              default:
+                APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
+                break;
+            }
+            t2 = dict_read_next(iterator);
+          }
+        }else {APP_LOG(APP_LOG_LEVEL_ERROR, "else");}
+        break;
+      default:
+        APP_LOG(APP_LOG_LEVEL_ERROR, "Key is not PLAT");
+        break;
     }
-  } else {
-    // For all items
-    while(t != NULL) {
-      // Which key was received?
-      // snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
-        switch(t->key) {
-          case TITLE_INFO:
-            snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
-            APP_LOG(APP_LOG_LEVEL_ERROR, "title %s", title_info_layer_buffer);
-            text_layer_set_text(s_title_info_layer, title_info_layer_buffer);
-            break;
-          case ARTIST_INFO:
-            snprintf(artist_info_layer_buffer, sizeof(artist_info_layer_buffer), "%s", t->value->cstring);
-            text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
-            break;
-          case ALBUM_INFO:
-            snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t->value->cstring);
-            text_layer_set_text(s_artist_info_layer, artist_info_layer_buffer);
-            break;
-          case PLAT:
-            snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
-            APP_LOG(APP_LOG_LEVEL_ERROR, "plat %s", title_info_layer_buffer);
-            break;
-          default:
-            APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
-            break;
-        }
-   
-      // Look for next item
-      t = dict_read_next(iterator);
-    }
+    t = dict_read_next(iterator);
   }
+
+  // if (strcmp(t->value->cstring, "kodi") == 0) {
+  //   while(t != NULL) {
+  //     switch(t->key) {
+  //       case TITLE_INFO:
+  //         snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t->value->cstring);
+  //         APP_LOG(APP_LOG_LEVEL_ERROR, "YEA:::: %s", album_info_layer_buffer);
+  //         text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
+  //         break;
+  //       default:
+  //         APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
+  //         break;
+  //     }
+  //     t = dict_read_next(iterator);
+  //   }
+  // } else {
+  //   // For all items
+  //   while(t != NULL) {
+  //     // Which key was received?
+  //     // snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
+  //       switch(t->key) {
+  //         case TITLE_INFO:
+  //           snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
+  //           APP_LOG(APP_LOG_LEVEL_ERROR, "title %s", title_info_layer_buffer);
+  //           text_layer_set_text(s_title_info_layer, title_info_layer_buffer);
+  //           break;
+  //         case ARTIST_INFO:
+  //           snprintf(artist_info_layer_buffer, sizeof(artist_info_layer_buffer), "%s", t->value->cstring);
+  //           text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
+  //           break;
+  //         case ALBUM_INFO:
+  //           snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t->value->cstring);
+  //           text_layer_set_text(s_artist_info_layer, artist_info_layer_buffer);
+  //           break;
+  //         case PLAT:
+  //           snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
+  //           APP_LOG(APP_LOG_LEVEL_ERROR, "plat %s", title_info_layer_buffer);
+  //           break;
+  //         default:
+  //           APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
+  //           break;
+  //       }
+   
+  //     // Look for next item
+  //     t = dict_read_next(iterator);
+  //   }
+  // }
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {

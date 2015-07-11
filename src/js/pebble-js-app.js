@@ -106,6 +106,7 @@ Pebble.addEventListener('appmessage',
 
               // Assemble dictionary using our keys
               var dictionary = {
+                "PLAT": "sq",
                 "TITLE_INFO": title,
                 "ARTIST_INFO": albumartist,
                 "ALBUM_INFO": album,
