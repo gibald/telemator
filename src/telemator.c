@@ -221,7 +221,7 @@ static void windows_kodi_load(Window *window){
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_album_info_layer));
 
   //Request info
-  send_int("kodi", "info");
+  send_int("kodi", "init");
 }
 static void windows_kodi_unload(Window *window){
   action_bar_layer_destroy(action_bar);
@@ -337,9 +337,13 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
             switch(t2->key) {
                APP_LOG(APP_LOG_LEVEL_ERROR, "In KODI::: %s", t2->value->cstring);
                case TITLE_INFO:
-                snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t2->value->cstring);
-                APP_LOG(APP_LOG_LEVEL_ERROR, "YEA:::: %s", album_info_layer_buffer);
-                text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
+                if(strcmp(t2->value->cstring, "NULL_NOT_PLAY") == 0) {
+                  text_layer_set_text(s_album_info_layer, "Nothing");
+                } else {
+                  snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t2->value->cstring);
+                  APP_LOG(APP_LOG_LEVEL_ERROR, "YEA:::: %s", album_info_layer_buffer);
+                  text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
+                }
                 break;
               default:
                 APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t2->key);

@@ -62,9 +62,43 @@ function trackInfo() {
   );
 }
 
+function init_Kodi() {
+  console.log("init_Kodi");
+  var kodi_command='{ "id": 1, "jsonrpc": "2.0", "method": "Player.GetActivePlayers" }';
+  xhrRequest(kodi_url+kodi_command, 'GET',
+    function(responseText) {
+      console.log(responseText);
+      var json = JSON.parse(responseText);
+      if(json.result[0]){
+        if (json.result[0].hasOwnProperty('playerid') == true) {
+          kodi_playerid = json.result[0].playerid;
+          kodi_type = json.result[0].type;
+          if(kodi_type=="video") {
+            send_command_Kodi("info");
+          }
+        }
+      }
+      else {
+        var dictionary = {
+          "PLAT": "kodi",
+          "TITLE_INFO": "NULL_NOT_PLAY",
+        };
+        Pebble.sendAppMessage(dictionary,
+          function(e) {
+            console.log("Info sent to Pebble successfully!");
+          },
+          function(e) {
+            console.log("Error sending weather info to Pebble!");
+          }
+        );
+      }
+    }
+  );
+}
+
 function send_command_Kodi(command) {
   if(command == "info"){
-    var myData='{"jsonrpc": "2.0", "method": "Player.GetItem", "params": {"playerid": 1 }, "id": "test"},'
+    var myData='{"jsonrpc": "2.0", "method": "Player.GetItem", "params": {"playerid": '+kodi_playerid+' }, "id": "test"}';
     ajaxJSONPost(kodi_url, myData,
       function(responseText) {
         var json = JSON.parse(responseText);
@@ -79,8 +113,6 @@ function send_command_Kodi(command) {
         var dictionary = {
           "PLAT": "kodi",
           "TITLE_INFO": title,
-          // "ARTIST_INFO": albumartist,
-          // "ALBUM_INFO": album,
         };
    
         // Send to Pebble
@@ -96,8 +128,7 @@ function send_command_Kodi(command) {
     );
   }
   if(command == "play"){
-    var kodi_url="http://"+kodi_ip+":"+kodi_port+"/jsonrpc?request=";
-    var kodi_command='{"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": 1 }, "id": 1}';
+    var kodi_command='{"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": '+kodi_playerid+' }, "id": 1}';
     xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
   }
 }
@@ -182,6 +213,9 @@ Pebble.addEventListener('appmessage',
       }
   		if( e.payload["STATUS_KEY"] == "kodi") {
         console.log("Kodi");
+        if (e.payload["MESSAGE_KEY"] == "init"){
+          init_Kodi();
+        }
         if (e.payload["MESSAGE_KEY"] == "info"){
           send_command_Kodi("info");
         }
