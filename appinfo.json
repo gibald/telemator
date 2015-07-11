@@ -2,6 +2,7 @@
   "uuid": "afb25e3f-4958-4148-8e87-8534c0554781",
   "shortName": "telemator",
   "longName": "telemator",
+  "capabilities": [ "configurable" ],
   "companyName": "Gibald",
   "versionLabel": "1.0",
   "sdkVersion": "3",
@@ -15,7 +16,9 @@
     "PLAT": 2,
     "TITLE_INFO": 3,
     "ARTIST_INFO": 4,
-    "ALBUM_INFO": 5
+    "ALBUM_INFO": 5,
+    "SQ_ADRESS": 6,
+    "KODI_ADRESS": 7
   },
   "resources": {
     "media": [
@@ -51,7 +54,5 @@
         "file": "skip-previous.png"
       }
     ]
-  },
-  "capabilities": 
-  [ "location" ]
+  }
 }
