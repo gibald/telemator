@@ -62,38 +62,44 @@ function trackInfo() {
   );
 }
 
-function send_command_Kodi() {
-  var myData='{"jsonrpc": "2.0", "method": "Player.GetItem", "params": {"playerid": 1 }, "id": "test"},'
-  ajaxJSONPost(kodi_url, myData,
-    function(responseText) {
-      // responseText contains a JSON object with weather info
-      var json = JSON.parse(responseText);
-      var title = json.result.item.label;
-      console.log(title);
-      // var albumartist = json.result.playlist_loop[0].artist;
-      // var album = json.result.playlist_loop[0].album;
-      // var info = title+" de "+album+" par "+albumartist;
-      // console.log(info);
+function send_command_Kodi(command) {
+  if(command == "info"){
+    var myData='{"jsonrpc": "2.0", "method": "Player.GetItem", "params": {"playerid": 1 }, "id": "test"},'
+    ajaxJSONPost(kodi_url, myData,
+      function(responseText) {
+        var json = JSON.parse(responseText);
+        var title = json.result.item.label;
+        console.log(title);
+        // var albumartist = json.result.playlist_loop[0].artist;
+        // var album = json.result.playlist_loop[0].album;
+        // var info = title+" de "+album+" par "+albumartist;
+        // console.log(info);
 
-      // Assemble dictionary using our keys
-      var dictionary = {
-        "PLAT": "kodi",
-        "TITLE_INFO": title,
-        // "ARTIST_INFO": albumartist,
-        // "ALBUM_INFO": album,
-      };
- 
-      // Send to Pebble
-      Pebble.sendAppMessage(dictionary,
-        function(e) {
-          console.log("Info sent to Pebble successfully!");
-        },
-        function(e) {
-          console.log("Error sending weather info to Pebble!");
-        }
-      );
-    }
-  );
+        // Assemble dictionary using our keys
+        var dictionary = {
+          "PLAT": "kodi",
+          "TITLE_INFO": title,
+          // "ARTIST_INFO": albumartist,
+          // "ALBUM_INFO": album,
+        };
+   
+        // Send to Pebble
+        Pebble.sendAppMessage(dictionary,
+          function(e) {
+            console.log("Info sent to Pebble successfully!");
+          },
+          function(e) {
+            console.log("Error sending weather info to Pebble!");
+          }
+        );
+      }
+    );
+  }
+  if(command == "play"){
+    var kodi_url="http://"+kodi_ip+":"+kodi_port+"/jsonrpc?request=";
+    var kodi_command='{"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": 1 }, "id": 1}';
+    xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
+  }
 }
 
 function locationError(err) {
@@ -177,15 +183,10 @@ Pebble.addEventListener('appmessage',
   		if( e.payload["STATUS_KEY"] == "kodi") {
         console.log("Kodi");
         if (e.payload["MESSAGE_KEY"] == "info"){
-          send_command_Kodi();
+          send_command_Kodi("info");
         }
         if (e.payload["MESSAGE_KEY"] == "play"){
-          console.log("Kodi play");
-          send_command_Kodi();
-          var kodi_url="http://"+kodi_ip+":"+kodi_port+"/jsonrpc?request=";
-          var kodi_command='{"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": 1 }, "id": 1}';
-          // var myurl=kodi_url+kodi_command;
-          xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
+          send_command_Kodi("play");
         }
       }
 		} catch (exc) {
