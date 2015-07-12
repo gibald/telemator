@@ -29,10 +29,24 @@ function ajaxJSONPost(url, jsondata, callback){
   xhr.send(jsondata);
 }
 
+function init_SqueezeBox() {
+  console.log("init_SuqueezeBox");
+  var url=SQ_Adress+"/jsonrpc.js";
+  var myData='{"id":1,"method":"slim.request","params":["",["serverstatus",0,999]]}';
+  ajaxJSONPost(url, myData,
+    function(responseText) {
+      var json = JSON.parse(responseText);
+      SQ_mac = json.result.players_loop[0].playerid;
+      console.log("mac_SQ: "+SQ_mac);
+    }
+  );
+  trackInfo();
+}
+
 function trackInfo() {
   console.log("trackinfo():"+SQ_Adress);
   var url=SQ_Adress+"/jsonrpc.js";
-  var myData='{"id":1,"method":"slim.request","params":["00:04:20:26:27:45",["status","-",1,"tags:gABbehldiqtyrSuoKLN"]]}'
+  var myData='{"id":1,"method":"slim.request","params":["'+SQ_mac+'",["status","-",1,"tags:gABbehldiqtyrSuoKLN"]]}';
   ajaxJSONPost(url, myData,
     function(responseText) {
       var json = JSON.parse(responseText);
@@ -57,6 +71,36 @@ function trackInfo() {
       );
     }
   );
+}
+
+function send_command_Kodi(command) {
+  if(command == "info"){
+    var myData='{"jsonrpc": "2.0", "method": "Player.GetItem", "params": {"playerid": '+kodi_playerid+' }, "id": "test"}';
+    ajaxJSONPost(kodi_url, myData,
+      function(responseText) {
+        var json = JSON.parse(responseText);
+        var title = json.result.item.label;
+
+        var dictionary = {
+          "PLAT": "kodi",
+          "TITLE_INFO": title,
+        };
+   
+        Pebble.sendAppMessage(dictionary,
+          function(e) {
+            console.log("Info sent to Pebble successfully!");
+          },
+          function(e) {
+            console.log("Error sending weather info to Pebble!");
+          }
+        );
+      }
+    );
+  }
+  if(command == "play"){
+    var kodi_command='{"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": '+kodi_playerid+' }, "id": 1}';
+    xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
+  }
 }
 
 function init_Kodi() {
@@ -91,36 +135,6 @@ function init_Kodi() {
       }
     }
   );
-}
-
-function send_command_Kodi(command) {
-  if(command == "info"){
-    var myData='{"jsonrpc": "2.0", "method": "Player.GetItem", "params": {"playerid": '+kodi_playerid+' }, "id": "test"}';
-    ajaxJSONPost(kodi_url, myData,
-      function(responseText) {
-        var json = JSON.parse(responseText);
-        var title = json.result.item.label;
-
-        var dictionary = {
-          "PLAT": "kodi",
-          "TITLE_INFO": title,
-        };
-   
-        Pebble.sendAppMessage(dictionary,
-          function(e) {
-            console.log("Info sent to Pebble successfully!");
-          },
-          function(e) {
-            console.log("Error sending weather info to Pebble!");
-          }
-        );
-      }
-    );
-  }
-  if(command == "play"){
-    var kodi_command='{"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": '+kodi_playerid+' }, "id": 1}';
-    xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
-  }
 }
 
 // function getSBInfo(){
@@ -169,19 +183,19 @@ Pebble.addEventListener('appmessage',
   		console.log("message "+e.payload["MESSAGE_KEY"]);
       if( e.payload["STATUS_KEY"] == "sb") {
         if (e.payload["MESSAGE_KEY"] == "track_info") {
-          trackInfo();
+          init_SqueezeBox()
         }
         if (e.payload["MESSAGE_KEY"] == "play"){
-          var myurl=SQ_Adress+"/status.html?p0=pause&player=00%3A04%3A20%3A26%3A27%3A45";
+          var myurl=SQ_Adress+"/status.html?p0=pause&player="+SQ_mac;
           xhrRequest(myurl, 'GET', function(responseText) {console.log("play");});
         }
         if (e.payload["MESSAGE_KEY"] == "previous"){
-          var myurl=SQ_Adress+"/status.html?p0=playlist&p1=jump&p2=-1&player=00%3A04%3A20%3A26%3A27%3A45";
+          var myurl=SQ_Adress+"/status.html?p0=playlist&p1=jump&p2=-1&player="+SQ_mac;
           xhrRequest(myurl, 'GET', function(responseText) {console.log("previous");});
           trackInfo();
         }
         if (e.payload["MESSAGE_KEY"] == "next"){
-          var myurl=SQ_Adress+"/status.html?p0=playlist&p1=jump&p2=%2b1&player=00%3A04%3A20%3A26%3A27%3A45";
+          var myurl=SQ_Adress+"/status.html?p0=playlist&p1=jump&p2=%2b1&player="+SQ_mac;
           xhrRequest(myurl, 'GET', function(responseText) {console.log("next");});
           trackInfo();
         }
