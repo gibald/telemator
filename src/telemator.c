@@ -169,7 +169,7 @@ void select_click_handler_kodi(ClickRecognizerRef recognizer, void *context) {
 //   send_int("sb", "next");
 // }
 
-void click_config_provider_kodi(void *context) {
+void click_config_provider_kodi_movie(void *context) {
   window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_click_handler_kodi);
   // window_long_click_subscribe(BUTTON_ID_SELECT, 700,(ClickHandler) select_long_click_handler, select_long_click_release_handler);
   // window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) down_click_handler);
@@ -180,16 +180,14 @@ static void menu_kodi(int index, void *ctx) {
   window_stack_push(windows_kodi, true);
 }
 
-static void windows_kodi_load(Window *window){
-  // layer_mark_dirty(simple_menu_layer_get_layer(s_simple_menu_layer));
-
+static void action_bar_movie_kodi(Window *window){
   // Initialize the action bar:
   action_bar = action_bar_layer_create();
   action_bar_layer_set_background_color(action_bar, GColorRed);
   // Associate the action bar with the window:
   action_bar_layer_add_to_window(action_bar, window);
   // Set the click config provider:
-  action_bar_layer_set_click_config_provider(action_bar, click_config_provider_kodi);
+  action_bar_layer_set_click_config_provider(action_bar, click_config_provider_kodi_movie);
 
   // Set the icons:
   s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_PLAY);
@@ -219,6 +217,56 @@ static void windows_kodi_load(Window *window){
   // text_layer_set_font(s_album_info_layer, s_weather_font);
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_album_info_layer));
+}
+
+void click_config_provider_kodi_nav_h(void *context) {
+  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_click_handler_kodi);
+  // window_long_click_subscribe(BUTTON_ID_SELECT, 700,(ClickHandler) select_long_click_handler, select_long_click_release_handler);
+  // window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) down_click_handler);
+  // window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) up_click_handler);
+}
+
+static void action_bar_nav_h_kodi(Window *window){
+  // Initialize the action bar:
+  action_bar = action_bar_layer_create();
+  action_bar_layer_set_background_color(action_bar, GColorBlue);
+  // Associate the action bar with the window:
+  action_bar_layer_add_to_window(action_bar, window);
+  // Set the click config provider:
+  action_bar_layer_set_click_config_provider(action_bar, click_config_provider_kodi_nav_h);
+
+  // Set the icons:
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_DOTH);
+  // The loading of the icons is omitted for brevity... See gbitmap_create_with_resource()
+  action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_SELECT, s_background_bitmap, true);
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_LEFT);
+  action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_UP, s_background_bitmap, true);
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_RIGHT);
+  action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_DOWN, s_background_bitmap, true);
+
+  // Create title TextLayer
+  s_title_info_layer = text_layer_create(GRect(0, 10, 144, 25));
+  text_layer_set_background_color(s_title_info_layer, GColorClear);
+  text_layer_set_text_color(s_title_info_layer, GColorRed);
+  text_layer_set_text(s_title_info_layer, "Kodi");
+  // s_weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
+  // text_layer_set_font(s_title_info_layer, s_weather_font);
+  // Add it as a child layer to the Window's root layer
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_title_info_layer));
+
+  // Create Movie TextLayer
+  s_album_info_layer = text_layer_create(GRect(0, 60, 144, 25));
+  text_layer_set_background_color(s_album_info_layer, GColorClear);
+  text_layer_set_text_color(s_album_info_layer, GColorRed);
+  text_layer_set_text(s_album_info_layer, "Movie");
+  // s_weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
+  // text_layer_set_font(s_album_info_layer, s_weather_font);
+  // Add it as a child layer to the Window's root layer
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_album_info_layer));
+}
+
+static void windows_kodi_load(Window *window){
+  action_bar_nav_h_kodi(window);
 
   //Request info
   send_int("kodi", "init");
@@ -339,9 +387,9 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
                case TITLE_INFO:
                 if(strcmp(t2->value->cstring, "NULL_NOT_PLAY") == 0) {
                   text_layer_set_text(s_album_info_layer, "Nothing");
+                  // action_bar_layer_destroy(action_bar);
                 } else {
                   snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t2->value->cstring);
-                  APP_LOG(APP_LOG_LEVEL_ERROR, "YEA:::: %s", album_info_layer_buffer);
                   text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
                 }
                 break;
@@ -359,7 +407,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
             switch(t2->key) {
               case TITLE_INFO:
                 snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t2->value->cstring);
-                APP_LOG(APP_LOG_LEVEL_ERROR, "title %s", title_info_layer_buffer);
                 text_layer_set_text(s_title_info_layer, title_info_layer_buffer);
                 break;
               case ARTIST_INFO:
@@ -384,53 +431,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     }
     t = dict_read_next(iterator);
   }
-
-  // if (strcmp(t->value->cstring, "kodi") == 0) {
-  //   while(t != NULL) {
-  //     switch(t->key) {
-  //       case TITLE_INFO:
-  //         snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t->value->cstring);
-  //         APP_LOG(APP_LOG_LEVEL_ERROR, "YEA:::: %s", album_info_layer_buffer);
-  //         text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
-  //         break;
-  //       default:
-  //         APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
-  //         break;
-  //     }
-  //     t = dict_read_next(iterator);
-  //   }
-  // } else {
-  //   // For all items
-  //   while(t != NULL) {
-  //     // Which key was received?
-  //     // snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
-  //       switch(t->key) {
-  //         case TITLE_INFO:
-  //           snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
-  //           APP_LOG(APP_LOG_LEVEL_ERROR, "title %s", title_info_layer_buffer);
-  //           text_layer_set_text(s_title_info_layer, title_info_layer_buffer);
-  //           break;
-  //         case ARTIST_INFO:
-  //           snprintf(artist_info_layer_buffer, sizeof(artist_info_layer_buffer), "%s", t->value->cstring);
-  //           text_layer_set_text(s_album_info_layer, album_info_layer_buffer);
-  //           break;
-  //         case ALBUM_INFO:
-  //           snprintf(album_info_layer_buffer, sizeof(album_info_layer_buffer), "%s", t->value->cstring);
-  //           text_layer_set_text(s_artist_info_layer, artist_info_layer_buffer);
-  //           break;
-  //         case PLAT:
-  //           snprintf(title_info_layer_buffer, sizeof(title_info_layer_buffer), "%s", t->value->cstring);
-  //           APP_LOG(APP_LOG_LEVEL_ERROR, "plat %s", title_info_layer_buffer);
-  //           break;
-  //         default:
-  //           APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
-  //           break;
-  //       }
-   
-  //     // Look for next item
-  //     t = dict_read_next(iterator);
-  //   }
-  // }
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {

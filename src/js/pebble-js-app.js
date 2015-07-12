@@ -2,10 +2,12 @@ kodi_ip="192.168.1.51";
 kodi_port="8080";
 kodi_url="http://"+kodi_ip+":"+kodi_port+"/jsonrpc?request=";
 
-SQ_Adress = localStorage.getItem(6);
+SQ_Adress = "http://192.168.1.40:9002";
+// SQ_Adress = localStorage.getItem(6);
 
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
+  console.log("status::: "+xhr.status);
   xhr.onload = function () {
     callback(this.responseText);
   };
@@ -33,15 +35,11 @@ function trackInfo() {
   var myData='{"id":1,"method":"slim.request","params":["00:04:20:26:27:45",["status","-",1,"tags:gABbehldiqtyrSuoKLN"]]}'
   ajaxJSONPost(url, myData,
     function(responseText) {
-      // responseText contains a JSON object with weather info
       var json = JSON.parse(responseText);
       var title = json.result.playlist_loop[0].title;
       var albumartist = json.result.playlist_loop[0].artist;
       var album = json.result.playlist_loop[0].album;
-      // var info = title+" de "+album+" par "+albumartist;
-      // console.log(info);
 
-      // Assemble dictionary using our keys
       var dictionary = {
         "PLAT": "sq",
         "TITLE_INFO": title,
@@ -49,7 +47,6 @@ function trackInfo() {
         "ALBUM_INFO": album,
       };
  
-      // Send to Pebble
       Pebble.sendAppMessage(dictionary,
         function(e) {
           console.log("Info sent to Pebble successfully!");
@@ -103,19 +100,12 @@ function send_command_Kodi(command) {
       function(responseText) {
         var json = JSON.parse(responseText);
         var title = json.result.item.label;
-        console.log(title);
-        // var albumartist = json.result.playlist_loop[0].artist;
-        // var album = json.result.playlist_loop[0].album;
-        // var info = title+" de "+album+" par "+albumartist;
-        // console.log(info);
 
-        // Assemble dictionary using our keys
         var dictionary = {
           "PLAT": "kodi",
           "TITLE_INFO": title,
         };
    
-        // Send to Pebble
         Pebble.sendAppMessage(dictionary,
           function(e) {
             console.log("Info sent to Pebble successfully!");
@@ -131,10 +121,6 @@ function send_command_Kodi(command) {
     var kodi_command='{"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": '+kodi_playerid+' }, "id": 1}';
     xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
   }
-}
-
-function locationError(err) {
-  console.log('Error requesting location!');
 }
 
 // function getSBInfo(){
@@ -171,17 +157,6 @@ Pebble.addEventListener("webviewclosed",
     SQ_Adress="http://"+SQ_IP+":"+SQ_Port;
 
     localStorage.setItem(6, SQ_Adress);
-    // console.log("111"+SQ_Adress);
-    //Send to Pebble, persist there
-    // Pebble.sendAppMessage(
-    //   {"SQ_ADRESS": SQ_Adress},
-    //   function(e) {
-    //     console.log("Sending settings data..."+SQ_Adress);
-    //   },
-    //   function(e) {
-    //     console.log("Settings feedback failed!");
-    //   }
-    // );
   }
 );
 

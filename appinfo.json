@@ -52,6 +52,36 @@
         "type": "png",
         "name": "ICON_PREVIOUS",
         "file": "skip-previous.png"
+      },
+      {
+        "type": "png",
+        "name": "ICON_LEFT",
+        "file": "arrow-left-bold.png"
+      },
+      {
+        "type": "png",
+        "name": "ICON_RIGHT",
+        "file": "arrow-right-bold.png"
+      },
+      {
+        "type": "png",
+        "name": "ICON_UP",
+        "file": "arrow-up-bold.png"
+      },
+      {
+        "type": "png",
+        "name": "ICON_DOWN",
+        "file": "arrow-down-bold.png"
+      },
+      {
+        "type": "png",
+        "name": "ICON_DOTH",
+        "file": "dots-horizontal.png"
+      },
+      {
+        "type": "png",
+        "name": "ICON_DOTV",
+        "file": "dots-vertical.png"
       }
     ]
   }
