@@ -7,8 +7,9 @@ SQ_Adress = "http://192.168.1.40:9002";
 
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
-  console.log("status::: "+xhr.status);
+  // if xhr.status=null => off
   xhr.onload = function () {
+    console.log("status::: "+xhr.status);
     callback(this.responseText);
   };
   xhr.open(type, url);
@@ -101,6 +102,26 @@ function send_command_Kodi(command) {
     var kodi_command='{"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": '+kodi_playerid+' }, "id": 1}';
     xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
   }
+  if(command == "select"){
+    var kodi_command='{"jsonrpc": "2.0", "method": "Input.Select", "id": "test"}';
+    xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
+  }
+  if(command == "left"){
+    var kodi_command='{"jsonrpc": "2.0", "method": "Input.Left", "id": "test"}';
+    xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
+  }
+  if(command == "right"){
+    var kodi_command='{"jsonrpc": "2.0", "method": "Input.Right", "id": "test"}';
+    xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
+  }
+  if(command == "move_left"){
+    var kodi_command='{"jsonrpc": "2.0", "method": "Player.Move", "params": { "playerid": '+kodi_playerid+', "direction": "left" }, "id": "test"}';
+    xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
+  }
+  if(command == "move_right"){
+    var kodi_command='{"jsonrpc": "2.0", "method": "Player.Move", "params": { "playerid": '+kodi_playerid+', "direction": "right" }, "id": "test"}';
+    xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
+  }
 }
 
 function init_Kodi() {
@@ -183,7 +204,7 @@ Pebble.addEventListener('appmessage',
   		console.log("message "+e.payload["MESSAGE_KEY"]);
       if( e.payload["STATUS_KEY"] == "sb") {
         if (e.payload["MESSAGE_KEY"] == "track_info") {
-          init_SqueezeBox()
+          init_SqueezeBox();
         }
         if (e.payload["MESSAGE_KEY"] == "play"){
           var myurl=SQ_Adress+"/status.html?p0=pause&player="+SQ_mac;
@@ -210,6 +231,21 @@ Pebble.addEventListener('appmessage',
         }
         if (e.payload["MESSAGE_KEY"] == "play"){
           send_command_Kodi("play");
+        }
+        if (e.payload["MESSAGE_KEY"] == "select"){
+          send_command_Kodi("select");
+        }
+        if (e.payload["MESSAGE_KEY"] == "left"){
+          send_command_Kodi("left");
+        }
+        if (e.payload["MESSAGE_KEY"] == "right"){
+          send_command_Kodi("right");
+        }
+        if (e.payload["MESSAGE_KEY"] == "move_left"){
+          send_command_Kodi("move_left");
+        }
+        if (e.payload["MESSAGE_KEY"] == "move_right"){
+          send_command_Kodi("move_right");
         }
       }
 		} catch (exc) {
