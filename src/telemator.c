@@ -6,6 +6,7 @@
 #define TITLE_INFO 3
 #define ARTIST_INFO 4
 #define ALBUM_INFO 5
+#define TAP_NOT_DATA true
 
 #define NUM_MENU_SECTIONS 2
 #define NUM_FIRST_MENU_ITEMS 2
@@ -43,6 +44,7 @@ static SimpleMenuSection s_advance_squeezebox_menu_sections[NUM_MENU_SECTIONS];
 static SimpleMenuItem s_advance_squeezebox_first_menu_items[NUM_FIRST_MENU_ITEMS];
 static SimpleMenuItem s_advance_squeezebox_second_menu_items[NUM_SECOND_MENU_ITEMS];
 
+void action_bar_nav_v_kodi(Window *window);
 
 void send_int(char* key, char* cmd)
 {
@@ -199,6 +201,22 @@ static void action_bar_movie_kodi(Window *window){
   action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_DOWN, s_background_bitmap, true);
 }
 
+static void data_handler(AccelData *data, uint32_t num_samples) {
+  // Long lived buffer
+  static char s_buffer[128];
+
+  // Compose string of all data
+  snprintf(s_buffer, sizeof(s_buffer), 
+    "N X,Y,Z\n0 %d,%d,%d\n1 %d,%d,%d\n2 %d,%d,%d", 
+    data[0].x, data[0].y, data[0].z, 
+    data[1].x, data[1].y, data[1].z, 
+    data[2].x, data[2].y, data[2].z
+  );
+
+  //Show the data
+  text_layer_set_text(s_title_info_layer, s_buffer);
+}
+
 void select_click_handler_kodi_nav_h(ClickRecognizerRef recognizer, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "click SELECT");
   send_int("kodi", "select");
@@ -214,6 +232,33 @@ void down_click_handler_kodi_nav_h(ClickRecognizerRef recognizer, void *context)
   send_int("kodi", "right");
 }
 
+static void tap_handler_kodi_nav_h(AccelAxisType axis, int32_t direction) {
+  switch (axis) {
+  case ACCEL_AXIS_X:
+    if (direction > 0) {
+      APP_LOG(APP_LOG_LEVEL_INFO, "X axis positive.");
+    } else {
+      APP_LOG(APP_LOG_LEVEL_INFO, "X axis negative.");
+    }
+    break;
+  case ACCEL_AXIS_Y:
+    if (direction > 0) {
+      APP_LOG(APP_LOG_LEVEL_INFO, "Y axis positive.");
+      action_bar_nav_v_kodi(windows_kodi);
+    } else {
+      APP_LOG(APP_LOG_LEVEL_INFO, "Y axis negative.");
+      action_bar_nav_v_kodi(windows_kodi);
+    }
+    break;
+  case ACCEL_AXIS_Z:
+    if (direction > 0) {
+      APP_LOG(APP_LOG_LEVEL_INFO, "Z axis positive.");
+    } else {
+      APP_LOG(APP_LOG_LEVEL_INFO, "Z axis negative.");
+    }
+    break;
+  }
+}
 
 void click_config_provider_kodi_nav_h(void *context) {
   window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_click_handler_kodi_nav_h);
@@ -238,6 +283,100 @@ static void action_bar_nav_h_kodi(Window *window){
   action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_UP, s_background_bitmap, true);
   s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_RIGHT);
   action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_DOWN, s_background_bitmap, true);
+
+  // Use tap service? If not, use data service
+  if (TAP_NOT_DATA) {
+    // Subscribe to the accelerometer tap service
+    accel_tap_service_subscribe(tap_handler_kodi_nav_h);
+  } else {
+    // Subscribe to the accelerometer data service
+    int num_samples = 3;
+    accel_data_service_subscribe(num_samples, data_handler);
+
+    // Choose update rate
+    accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
+  }
+}
+
+void select_click_handler_kodi_nav_v(ClickRecognizerRef recognizer, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "click SELECT");
+  send_int("kodi", "select");
+}
+
+void up_click_handler_kodi_nav_v(ClickRecognizerRef recognizer, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "click UP");
+  send_int("kodi", "up");
+}
+
+void down_click_handler_kodi_nav_v(ClickRecognizerRef recognizer, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "click DOWN");
+  send_int("kodi", "down");
+}
+
+static void tap_handler_kodi_nav_v(AccelAxisType axis, int32_t direction) {
+  switch (axis) {
+  case ACCEL_AXIS_X:
+    if (direction > 0) {
+      APP_LOG(APP_LOG_LEVEL_INFO, "X axis positive.");
+    } else {
+      APP_LOG(APP_LOG_LEVEL_INFO, "X axis negative.");
+    }
+    break;
+  case ACCEL_AXIS_Y:
+    if (direction > 0) {
+      APP_LOG(APP_LOG_LEVEL_INFO, "Y axis positive.");
+      action_bar_nav_h_kodi(windows_kodi);
+    } else {
+      APP_LOG(APP_LOG_LEVEL_INFO, "Y axis negative.");
+      action_bar_nav_h_kodi(windows_kodi);
+    }
+    break;
+  case ACCEL_AXIS_Z:
+    if (direction > 0) {
+      APP_LOG(APP_LOG_LEVEL_INFO, "Z axis positive.");
+    } else {
+      APP_LOG(APP_LOG_LEVEL_INFO, "Z axis negative.");
+    }
+    break;
+  }
+}
+
+void click_config_provider_kodi_nav_v(void *context) {
+  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_click_handler_kodi_nav_v);
+  window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) up_click_handler_kodi_nav_v);
+  window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) down_click_handler_kodi_nav_v);
+}
+
+void action_bar_nav_v_kodi(Window *window){
+  // Initialize the action bar:
+  action_bar = action_bar_layer_create();
+  action_bar_layer_set_background_color(action_bar, GColorGreen);
+  // Associate the action bar with the window:
+  action_bar_layer_add_to_window(action_bar, window);
+  // Set the click config provider:
+  action_bar_layer_set_click_config_provider(action_bar, click_config_provider_kodi_nav_v);
+
+  // Set the icons:
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_DOTV);
+  // The loading of the icons is omitted for brevity... See gbitmap_create_with_resource()
+  action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_SELECT, s_background_bitmap, true);
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_UP);
+  action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_UP, s_background_bitmap, true);
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ICON_DOWN);
+  action_bar_layer_set_icon_animated(action_bar, BUTTON_ID_DOWN, s_background_bitmap, true);
+
+  // Use tap service? If not, use data service
+  if (TAP_NOT_DATA) {
+    // Subscribe to the accelerometer tap service
+    accel_tap_service_subscribe(tap_handler_kodi_nav_v);
+  } else {
+    // Subscribe to the accelerometer data service
+    int num_samples = 3;
+    accel_data_service_subscribe(num_samples, data_handler);
+
+    // Choose update rate
+    accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
+  }
 }
 
 static void windows_kodi_load(Window *window){
@@ -271,6 +410,12 @@ static void windows_kodi_unload(Window *window){
   action_bar_layer_destroy(action_bar);
   text_layer_destroy(s_title_info_layer);
   text_layer_destroy(s_album_info_layer);
+
+  if (TAP_NOT_DATA) {
+    accel_tap_service_unsubscribe();
+  } else {
+    accel_data_service_unsubscribe();
+  }
 }
 
 static void menu_advance_squeezebox(int index, void *ctx) {
@@ -322,6 +467,10 @@ void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
 }
 
+static void layer_update_proc(Layer *layer, GContext *ctx) {
+  graphics_context_set_compositing_mode(ctx, GCompOpSet);
+  graphics_draw_bitmap_in_rect(ctx, s_menu_squeezebox_icon_image, gbitmap_get_bounds(s_menu_squeezebox_icon_image));
+}
 
 static void main_window_load(Window *window) {
   s_menu_squeezebox_icon_image = gbitmap_create_with_resource(RESOURCE_ID_ICON_SQUEEZEBOX);

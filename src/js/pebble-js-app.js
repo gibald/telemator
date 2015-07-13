@@ -114,6 +114,14 @@ function send_command_Kodi(command) {
     var kodi_command='{"jsonrpc": "2.0", "method": "Input.Right", "id": "test"}';
     xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
   }
+  if(command == "up"){
+    var kodi_command='{"jsonrpc": "2.0", "method": "Input.Up", "id": "test"}';
+    xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
+  }
+  if(command == "down"){
+    var kodi_command='{"jsonrpc": "2.0", "method": "Input.Down", "id": "test"}';
+    xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
+  }
   if(command == "move_left"){
     var kodi_command='{"jsonrpc": "2.0", "method": "Player.Move", "params": { "playerid": '+kodi_playerid+', "direction": "left" }, "id": "test"}';
     xhrRequest(kodi_url+kodi_command, 'GET', function(responseText) {console.log(responseText);});
@@ -240,6 +248,12 @@ Pebble.addEventListener('appmessage',
         }
         if (e.payload["MESSAGE_KEY"] == "right"){
           send_command_Kodi("right");
+        }
+        if (e.payload["MESSAGE_KEY"] == "up"){
+          send_command_Kodi("up");
+        }
+        if (e.payload["MESSAGE_KEY"] == "down"){
+          send_command_Kodi("down");
         }
         if (e.payload["MESSAGE_KEY"] == "move_left"){
           send_command_Kodi("move_left");
