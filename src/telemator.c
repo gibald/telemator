@@ -1,5 +1,8 @@
 #include <pebble.h>
 
+///////////////
+// Variables //
+///////////////
 #define STATUS_KEY 0
 #define MESSAGE_KEY 1
 #define PLAT 2
